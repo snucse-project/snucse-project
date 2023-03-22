@@ -1,4 +1,4 @@
-package com.wafflestudio.msns
+package wiki
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
