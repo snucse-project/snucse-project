@@ -1,10 +1,12 @@
 const express = require('express');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
-// const session = require('expres-session');
+// const session = require('express-session');
 const dotenv = require('dotenv');
 const path = require('path');
 const nunjucks = require('nunjucks');
+
+const connect = require('./schemas');
 
 dotenv.config();
 
@@ -14,7 +16,7 @@ const indexRouter = require('./routes/index');
 const testRouter = require('./routes/test');
 
 const app = express();
-app.set('port', process.env.PORT);
+app.set('port', process.env.PORT || 7777);
 
 // view engine setup
 app.set('view engine', 'html'); // put layout files in ./views
@@ -23,9 +25,11 @@ nunjucks.configure('views', {
     watch: true,
 })
 
+connect();
+
 app.use(morgan('dev'));
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public'))); // put style files in ./public
 
