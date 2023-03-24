@@ -35,6 +35,7 @@ class XmlRevisionTag : BaseEntity() {
     val minor: XmlMinorTag = XmlMinorTag()
 
     @XmlElement(name = "comment", namespace = "http://www.mediawiki.org/xml/export-0.10/")
+    @Column(length = 10000)
     val comment: String = ""
 
     @XmlElement(name = "model", namespace = "http://www.mediawiki.org/xml/export-0.10/")
