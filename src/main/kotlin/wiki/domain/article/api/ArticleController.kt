@@ -34,9 +34,9 @@ class ArticleController(
         @PathVariable("title") title: String
     ): ArticleResponse.ContentResponse = articleService.getArticleContent(title)
 
-    @GetMapping("/{article_id}/siteinfo")
+    @GetMapping("/siteinfo/{siteinfo_id}")
     @ResponseStatus(HttpStatus.OK)
     fun getSiteInfo(
-        @PathVariable("article_id") articleId: String
-    ): ArticleResponse.SiteInfoResponse = articleService.getSiteInfo(articleId)
+        @PathVariable("siteinfo_id") siteInfoId: String
+    ): ArticleResponse.SiteInfoResponse = articleService.getSiteInfo(siteInfoId)
 }

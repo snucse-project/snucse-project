@@ -108,8 +108,8 @@ class ArticleService(
             }
             ?: throw ArticleNotFoundByTitleException("article is not found with the given title.")
 
-    fun getSiteInfo(articleId: String): ArticleResponse.SiteInfoResponse =
-        xmlSiteInfoTagRepository.findXmlSiteInfoTagById(UUID.fromString(articleId))
+    fun getSiteInfo(siteInfoId: String): ArticleResponse.SiteInfoResponse =
+        xmlSiteInfoTagRepository.findXmlSiteInfoTagById(UUID.fromString(siteInfoId))
             ?.let { siteInfo ->
                 ArticleResponse.SiteInfoResponse(
                     siteInfo.siteName,
