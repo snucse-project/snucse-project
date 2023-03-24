@@ -1,8 +1,10 @@
 package wiki.domain.article.dto
 
+import java.util.UUID
+
 class ArticleResponse {
-    data class TitleResponse(
-        val title: String
+    data class IdResponse(
+        val id: UUID
     )
 
     data class InfoResponse(
@@ -35,5 +37,20 @@ class ArticleResponse {
     data class TextResponse(
         val bytes: Int,
         val content: String
+    )
+
+    data class SiteInfoResponse(
+        val siteName: String,
+        val dbname: String,
+        val base: String,
+        val generator: String,
+        val case: String,
+        val namespaces: List<NamespaceResponse>
+    )
+
+    data class NamespaceResponse(
+        val key: String,
+        val case: String,
+        val content: String?
     )
 }

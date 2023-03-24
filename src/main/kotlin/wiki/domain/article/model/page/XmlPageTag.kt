@@ -1,8 +1,11 @@
 package wiki.domain.article.model.page
 
+import wiki.domain.article.model.siteinfo.XmlSiteInfoTag
 import wiki.domain.base.BaseEntity
 import javax.persistence.Entity
+import javax.persistence.FetchType
 import javax.persistence.JoinColumn
+import javax.persistence.ManyToOne
 import javax.persistence.OneToOne
 import javax.xml.bind.annotation.XmlAccessType
 import javax.xml.bind.annotation.XmlAccessorType
@@ -31,4 +34,8 @@ class XmlPageTag : BaseEntity() {
     @JoinColumn(name = "revision_id", referencedColumnName = "id")
     @XmlElement(name = "revision", namespace = "http://www.mediawiki.org/xml/export-0.10/")
     var revision: XmlRevisionTag = XmlRevisionTag()
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = [])
+    @JoinColumn(name = "siteinfo_id", referencedColumnName = "id")
+    var siteInfo: XmlSiteInfoTag = XmlSiteInfoTag()
 }

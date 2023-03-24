@@ -20,7 +20,7 @@ class ArticleController(
     @ResponseStatus(HttpStatus.OK)
     fun saveArticle(
         @RequestParam(name = "xml") xmlDir: String
-    ): ArticleResponse.TitleResponse = articleService.xmlParser(xmlDir)
+    ): ArticleResponse.IdResponse = articleService.xmlParser(xmlDir)
 
     @GetMapping("/info/{title}")
     @ResponseStatus(HttpStatus.OK)
@@ -33,4 +33,10 @@ class ArticleController(
     fun getArticleContent(
         @PathVariable("title") title: String
     ): ArticleResponse.ContentResponse = articleService.getArticleContent(title)
+
+    @GetMapping("/{article_id}/siteinfo")
+    @ResponseStatus(HttpStatus.OK)
+    fun getSiteInfo(
+        @PathVariable("article_id") articleId: String
+    ): ArticleResponse.SiteInfoResponse = articleService.getSiteInfo(articleId)
 }
