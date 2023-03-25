@@ -1,11 +1,10 @@
 const express = require('express');
 const morgan = require('morgan');
-const cookieParser = require('cookie-parser');
+// const cookieParser = require('cookie-parser');
 // const session = require('express-session');
 const dotenv = require('dotenv');
 const path = require('path');
 const nunjucks = require('nunjucks');
-
 const connect = require('./schemas');
 
 dotenv.config();
@@ -13,7 +12,7 @@ dotenv.config();
 // modify here later, only for test
 // change app.use statements below together
 const indexRouter = require('./routes/index');
-const testRouter = require('./routes/test');
+const articleRouter = require('./routes/article');
 
 const app = express();
 app.set('port', process.env.PORT || 7777);
@@ -24,18 +23,18 @@ nunjucks.configure('views', {
     express: app,
     watch: true,
 })
-
 connect();
 
 app.use(morgan('dev'));
+// app.use(express.static(path.join(__dirname, 'public'))); // put style files in ./public
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public'))); // put style files in ./public
+// app.use(cookieParser());
+
 
 // modify here later, only for test
 app.use('/', indexRouter);
-app.use('/test', testRouter);
+app.use('/article', articleRouter);
 
 app.use((req, res, next) => {
     const error =  new Error(`${req.method} ${req.url} router doesn't exist.`);

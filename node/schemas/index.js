@@ -7,7 +7,7 @@ const connect = () => {
       mongoose.set('debug', true);
     }
     mongoose.connect(process.env.MONGO_URI, {
-    dbName: 'practice',
+    dbName: 'enwiki_test',
     useNewUrlParser: true,
   }, (error) => {
     if (error) {
