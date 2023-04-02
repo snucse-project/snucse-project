@@ -6,4 +6,10 @@ import java.util.UUID
 
 interface XmlPageTagRepository : JpaRepository<XmlPageTag, UUID?> {
     fun findByTitle(title: String): XmlPageTag?
+
+    fun findAllByRevision_Contributor__id(id: Int): List<XmlPageTag>
+
+    fun findAllByRevision_Contributor_Username(username: String): List<XmlPageTag>
+
+    fun findAllByRevision_Contributor_Ip(ip: String): List<XmlPageTag>
 }

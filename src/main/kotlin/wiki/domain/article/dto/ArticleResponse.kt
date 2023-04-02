@@ -30,8 +30,9 @@ class ArticleResponse {
     )
 
     data class ContributorResponse(
-        val username: String,
-        val id: Int
+        val username: String?,
+        val id: Int?,
+        val ip: String?
     )
 
     data class TextResponse(
@@ -52,5 +53,14 @@ class ArticleResponse {
         val key: String,
         val case: String,
         val content: String?
+    )
+
+    data class Response(
+        val info: InfoResponse,
+        val content: ContentResponse
+    )
+
+    data class ListResponse(
+        val article: List<Response>
     )
 }

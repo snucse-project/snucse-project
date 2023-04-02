@@ -12,8 +12,11 @@ import javax.xml.bind.annotation.XmlRootElement
 @XmlRootElement(name = "contributor", namespace = "http://www.mediawiki.org/xml/export-0.10/")
 class XmlContributorTag : BaseEntity() {
     @XmlElement(name = "username", namespace = "http://www.mediawiki.org/xml/export-0.10/")
-    val username: String = ""
+    val username: String? = null
 
     @XmlElement(name = "id", namespace = "http://www.mediawiki.org/xml/export-0.10/")
-    val _id: Int = 0
+    val _id: Int? = null
+
+    @XmlElement(name = "ip", namespace = "http://www.mediawiki.org/xml/export-0.10/")
+    val ip: String? = null
 }

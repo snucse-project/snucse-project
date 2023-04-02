@@ -2,8 +2,9 @@ package wiki.domain.article.service
 
 import org.springframework.stereotype.Service
 import wiki.domain.article.dto.ArticleResponse
-import wiki.domain.article.exception.ArticleNotFoundByTitleException
+import wiki.domain.article.exception.ArticleNotFoundException
 import wiki.domain.article.model.mediawiki.XmlMediaWikiTag
+import wiki.domain.article.model.page.XmlPageTag
 import wiki.domain.article.model.siteinfo.XmlSiteInfoTag
 import wiki.domain.article.repository.page.XmlContributorTagRepository
 import wiki.domain.article.repository.page.XmlMinorTagRepository
@@ -83,7 +84,7 @@ class ArticleService(
                     ArticleResponse.RedirectResponse(pageTag.redirect._title)
                 )
             }
-            ?: throw ArticleNotFoundByTitleException("article is not found with the given title.")
+            ?: throw ArticleNotFoundException("article is not found.")
 
     fun getArticleContent(title: String): ArticleResponse.ContentResponse =
         xmlPageTagRepository.findByTitle(title)
@@ -95,7 +96,8 @@ class ArticleService(
                     tag.timestamp,
                     ArticleResponse.ContributorResponse(
                         tag.contributor.username,
-                        tag.contributor._id
+                        tag.contributor._id,
+                        tag.contributor.ip
                     ),
                     tag.comment,
                     tag.model,
@@ -106,7 +108,7 @@ class ArticleService(
                     )
                 )
             }
-            ?: throw ArticleNotFoundByTitleException("article is not found with the given title.")
+            ?: throw ArticleNotFoundException("article is not found with the given title.")
 
     fun getSiteInfo(siteInfoId: String): ArticleResponse.SiteInfoResponse =
         xmlSiteInfoTagRepository.findXmlSiteInfoTagById(UUID.fromString(siteInfoId))
@@ -126,5 +128,54 @@ class ArticleService(
                     }
                 )
             }
-            ?: throw ArticleNotFoundByTitleException("article is not found with the given id.")
+            ?: throw ArticleNotFoundException("article is not found with the given siteinfo_id.")
+
+    fun getArticleByTitle(title: String): ArticleResponse.Response =
+        getArticleFromEntity(xmlPageTagRepository.findByTitle(title), "title")
+
+    fun getArticleByContributorId(id: Int): ArticleResponse.ListResponse =
+        ArticleResponse.ListResponse(
+            xmlPageTagRepository.findAllByRevision_Contributor__id(id).map { getArticleFromEntity(it, "contributor id") }
+        )
+
+    fun getArticleByContributorUsername(username: String): ArticleResponse.ListResponse =
+        ArticleResponse.ListResponse(
+            xmlPageTagRepository.findAllByRevision_Contributor_Username(username).map { getArticleFromEntity(it, "contributor username") }
+        )
+
+    fun getArticleByContributorIP(ip: String): ArticleResponse.ListResponse =
+        ArticleResponse.ListResponse(
+            xmlPageTagRepository.findAllByRevision_Contributor_Ip(ip).map { getArticleFromEntity(it, "contributor IP") }
+        )
+
+    fun getArticleFromEntity(xmlPageTag: XmlPageTag?, obj: String): ArticleResponse.Response =
+        xmlPageTag
+            ?.let { tag ->
+                ArticleResponse.Response(
+                    info = ArticleResponse.InfoResponse(
+                        tag.title,
+                        tag.ns,
+                        tag._id,
+                        ArticleResponse.RedirectResponse(tag.redirect._title)
+                    ),
+                    content = ArticleResponse.ContentResponse(
+                        tag.revision.revisionId,
+                        tag.revision.parentId,
+                        tag.revision.timestamp,
+                        ArticleResponse.ContributorResponse(
+                            tag.revision.contributor.username,
+                            tag.revision.contributor._id,
+                            tag.revision.contributor.ip
+                        ),
+                        tag.revision.comment,
+                        tag.revision.model,
+                        tag.revision.format,
+                        ArticleResponse.TextResponse(
+                            tag.revision.text._bytes.toInt(),
+                            tag.revision.text.text
+                        )
+                    )
+                )
+            }
+            ?: throw ArticleNotFoundException("article is not found with the given $obj.")
 }

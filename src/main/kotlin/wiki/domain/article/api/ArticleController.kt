@@ -34,9 +34,33 @@ class ArticleController(
         @PathVariable("title") title: String
     ): ArticleResponse.ContentResponse = articleService.getArticleContent(title)
 
+    @GetMapping("/{title}")
+    @ResponseStatus(HttpStatus.OK)
+    fun getArticle(
+        @PathVariable("title") title: String
+    ): ArticleResponse.Response = articleService.getArticleByTitle(title)
+
     @GetMapping("/siteinfo/{siteinfo_id}")
     @ResponseStatus(HttpStatus.OK)
     fun getSiteInfo(
         @PathVariable("siteinfo_id") siteInfoId: String
     ): ArticleResponse.SiteInfoResponse = articleService.getSiteInfo(siteInfoId)
+
+    @GetMapping("/contributor/id/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    fun getArticleInfoByContributorId(
+        @PathVariable("id") contributorId: Int
+    ): ArticleResponse.ListResponse = articleService.getArticleByContributorId(contributorId)
+
+    @GetMapping("/contributor/username/{username}")
+    @ResponseStatus(HttpStatus.OK)
+    fun getArticleInfoByContributorUsername(
+        @PathVariable("username") contributorUsername: String
+    ): ArticleResponse.ListResponse = articleService.getArticleByContributorUsername(contributorUsername)
+
+    @GetMapping("/contributor/ip/{ip}")
+    @ResponseStatus(HttpStatus.OK)
+    fun getArticleInfoByContributorIP(
+        @PathVariable("ip") contributorIp: String
+    ): ArticleResponse.ListResponse = articleService.getArticleByContributorIP(contributorIp)
 }
