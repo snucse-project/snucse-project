@@ -6,13 +6,16 @@ const dotenv = require('dotenv');
 const path = require('path');
 const nunjucks = require('nunjucks');
 const connect = require('./schemas');
+const bplustree = require('./structures/bplustree');
 
 dotenv.config();
 
 // modify here later, only for test
 // change app.use statements below together
+const bptree = new bplustree.BPlusTree(3);
 const indexRouter = require('./routes/index');
-const articleRouter = require('./routes/article');
+//const articleRouter = require('./routes/article')(bptree);
+const contributorRouter = require('./routes/contributor');
 
 const app = express();
 app.set('port', process.env.PORT || 7777);
@@ -34,7 +37,44 @@ app.use(express.urlencoded({extended: false}));
 
 // modify here later, only for test
 app.use('/', indexRouter);
-app.use('/article', articleRouter);
+//app.use('/article', articleRouter);
+const hash = require('./structures/hash');
+
+// default
+app.route('/article')
+  .get(async (req, res, next) => {
+    try {
+      console.log(bptree.visualize());
+      res.send('search as article/:title');
+    } catch (err) {
+      console.error(err);
+      next(err);
+    }
+  });
+
+// GET article by title
+app.get('/article/:title', async (req, res, next) => {
+  try{
+    const title = req.params.title;
+    const hashedTitle = hash.hashStringTo8ByteInt(title);
+    bptree.insert(title, hashedTitle);
+    res.send('Title: ' + title + ', Hashed title: ' + hashedTitle);
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+});
+
+app.get('/article/find/:title', async (req, res, next) => {
+  try{
+    const value = bptree.search(req.params.title);
+    res.send('Found Hashed title: ' + value);
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+});
+app.use('/contributor', contributorRouter);
 
 app.use((req, res, next) => {
     const error =  new Error(`${req.method} ${req.url} router doesn't exist.`);
@@ -52,4 +92,5 @@ app.use((err, req, res, next) => {
 app.listen(app.get('port'), () => {
     console.log('Listening at port', app.get('port'));
 });
-  
+
+module.exports = app;
