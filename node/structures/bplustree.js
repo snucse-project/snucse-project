@@ -12,12 +12,12 @@ class BPlusTree {
     this.root = null;
   }
 
-  insert(key, value) {
-    // const newInput = new Value(username, start, end);
+  insert(key, username, start, end) {
+    const newValue = new Value(username, start, end);
     if (this.root === null) {
       this.root = new BPlusTreeNode(this.degree, true);
       this.root.keys[0] = key;
-      this.root.values[0] = value;
+      this.root.values[0] = newValue;
       this.root.numKeys = 1;
     } else {
       if (this.root.numKeys === 2 * this.degree - 1) {
@@ -29,11 +29,11 @@ class BPlusTree {
         if (newRoot.keys[0] < key) {
           i++;
         }
-        newRoot.children[i].insertNonFull(key, value);
+        newRoot.children[i].insertNonFull(key, newValue);
 
         this.root = newRoot;
       } else {
-        this.root.insertNonFull(key, value);
+        this.root.insertNonFull(key, newValue);
       }
     }
   }
@@ -105,7 +105,7 @@ class BPlusTreeNode {
     return this.children[i].search(key);
   }
 
-  insertNonFull(key, value) {
+  insertNonFull(key, newValue) {
     let i = this.numKeys - 1;
 
     if (this.isLeaf) {
@@ -115,7 +115,7 @@ class BPlusTreeNode {
         i--;
       }
       this.keys[i + 1] = key;
-      this.values[i + 1] = value;
+      this.values[i + 1] = newValue;
       this.numKeys++;
     }
     else {
@@ -130,7 +130,7 @@ class BPlusTreeNode {
         }
       }
 
-      this.children[i + 1].insertNonFull(key, value);
+      this.children[i + 1].insertNonFull(key, newValue);
     }
   }
 
@@ -173,46 +173,3 @@ class BPlusTreeNode {
 }
 
 module.exports = { Value, BPlusTree, BPlusTreeNode };
-
-// for test
-// const tree = new BPlusTree(2);
-
-// insert values
-/*
-tree.insert(3, '3');
-tree.insert(5, '5');
-tree.insert(7, '7');
-tree.insert(10, '10');
-tree.insert(15, '15');
-tree.insert(17, '17');
-tree.insert(20, '20');
-tree.insert(25, '25');
-//tree.insert(8, '8');
-//tree.insert(6, '6');
-//tree.insert(19, '19');
-tree.insert(27, '27');
-tree.insert(17, '17');
-tree.insert(15, '15');
-tree.insert(10, '10');
-tree.insert(7, '7');
-//tree.insert(5, '5');
-//tree.insert(3, '3');
-//tree.insert(19, '19');
-tree.insert(20, '20');
-tree.insert(25, '25');
-*/
-
-// search for values
-/*
-console.log(tree.search(10)); // output: '10'
-console.log(tree.search(20)); // output: '20'
-console.log(tree.search(5)); // output: '5'
-console.log(tree.search(15)); // output: '15'
-console.log(tree.search(25)); // output: '25'
-console.log(tree.search(3)); // output: '3'
-console.log(tree.search(7)); // output: '7'
-console.log(tree.search(17)); // output: '17'
-console.log(tree.search(27)); // output: '27'
-console.log(tree.search(100)); // output: null
-tree.visualize();
-*/

@@ -10,8 +10,7 @@ const bplustree = require('./structures/bplustree');
 
 dotenv.config();
 
-// modify here later, only for test
-// change app.use statements below together
+ /* change degree later */
 const bptree = new bplustree.BPlusTree(3);
 const indexRouter = require('./routes/index');
 // const articleRouter = require('./routes/article')(bptree);
@@ -20,7 +19,7 @@ const indexRouter = require('./routes/index');
 const app = express();
 app.set('port', process.env.PORT || 7777);
 
-// view engine setup
+/* view engine setup */
 app.set('view engine', 'html'); // put layout files in ./views
 nunjucks.configure('views', {
     express: app,
@@ -35,13 +34,14 @@ app.use(express.urlencoded({extended: false}));
 // app.use(cookieParser());
 
 
-// modify here later, only for test
 app.use('/', indexRouter);
 // app.use('/article', articleRouter);
 // app.use('/contributor', contributorRouter);
+
+/* not easy to use declared B+ tree in routers
+   refactor this part later */
 const hash = require('./structures/hash');
 
-// default
 app.route('/article')
   .get(async (req, res, next) => {
     try {
@@ -53,23 +53,24 @@ app.route('/article')
     }
   });
 
-// GET article by title
 app.get('/article/:title', async (req, res, next) => {
-  try{
-    const title = req.params.title;
-    const hashedTitle = hash.hashStringTo8ByteInt(title);
-    bptree.insert(title, hashedTitle);
-    res.send('Title: ' + title + ', Hashed title: ' + hashedTitle);
-  } catch (err) {
-    console.error(err);
-    next(err);
-  }
+    try{
+        const title = req.params.title;
+        const hashedTitle = hash.hashStringTo8ByteInt(title);
+        const start = title.length;
+        const end = title.charAt(0);
+        bptree.insert(title, hashedTitle, start, end);
+        res.send('Title: ' + title + ', Hashed title: ' + hashedTitle + ', start: ' + start + ', end: ' + end);
+      } catch (err) {
+        console.error(err);
+        next(err);
+      }
 });
 
 app.get('/article/find/:title', async (req, res, next) => {
   try{
     const value = bptree.search(req.params.title);
-    res.send('Found Hashed title: ' + value);
+    res.send('Found Hashed title: ' + value.username);
   } catch (err) {
     console.error(err);
     next(err);
@@ -86,7 +87,6 @@ app.route('/contributor')
     }
   });
 
-// GET articles by contributor
 app.get('/contributor/:username', async (req, res, next) => {
   try{
     const username = req.params.username;
@@ -97,8 +97,7 @@ app.get('/contributor/:username', async (req, res, next) => {
     next(err);
   }
 });
-
-
+/* end of messy codes */
 
 app.use((req, res, next) => {
     const error =  new Error(`${req.method} ${req.url} router doesn't exist.`);
@@ -116,5 +115,3 @@ app.use((err, req, res, next) => {
 app.listen(app.get('port'), () => {
     console.log('Listening at port', app.get('port'));
 });
-
-module.exports = app;
