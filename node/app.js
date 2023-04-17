@@ -14,8 +14,8 @@ dotenv.config();
 // change app.use statements below together
 const bptree = new bplustree.BPlusTree(3);
 const indexRouter = require('./routes/index');
-//const articleRouter = require('./routes/article')(bptree);
-const contributorRouter = require('./routes/contributor');
+// const articleRouter = require('./routes/article')(bptree);
+// const contributorRouter = require('./routes/contributor');
 
 const app = express();
 app.set('port', process.env.PORT || 7777);
@@ -37,7 +37,8 @@ app.use(express.urlencoded({extended: false}));
 
 // modify here later, only for test
 app.use('/', indexRouter);
-//app.use('/article', articleRouter);
+// app.use('/article', articleRouter);
+// app.use('/contributor', contributorRouter);
 const hash = require('./structures/hash');
 
 // default
@@ -74,7 +75,30 @@ app.get('/article/find/:title', async (req, res, next) => {
     next(err);
   }
 });
-app.use('/contributor', contributorRouter);
+
+app.route('/contributor')
+  .get(async (req, res, next) => {
+    try {
+      res.send('search as contributor/:username');
+    } catch (err) {
+      console.error(err);
+      next(err);
+    }
+  });
+
+// GET articles by contributor
+app.get('/contributor/:username', async (req, res, next) => {
+  try{
+    const username = req.params.username;
+    const hashedUsername = hash.hashStringTo8ByteInt(username);
+    res.send('Contributor: ' + username + ', Hashed username: ' + hashedUsername);
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+});
+
+
 
 app.use((req, res, next) => {
     const error =  new Error(`${req.method} ${req.url} router doesn't exist.`);
