@@ -18,6 +18,7 @@ const articleSchema = new Schema({
     redirect: {
         type: {
             title: String,
+            _id: false,
         },
     },
     revision: {
@@ -25,10 +26,11 @@ const articleSchema = new Schema({
             id: Number,
             parentid: Number,
             timestamp: Date,
-            Contributor: {
+            contributor: {
                 type: {
                     username: String,
                     id: Number,
+                    _id: false,
                 }
             },
             comment: String,
@@ -38,8 +40,10 @@ const articleSchema = new Schema({
                 type: {
                     bytes: Number,
                     content: String,
+                    _id: false,
                 }
-            }
+            },
+            _id: false,
         }
     } 
 });
