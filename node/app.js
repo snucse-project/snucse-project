@@ -79,7 +79,7 @@ app.get('/article/:title', async (req, res, next) => {
     const hashedTitle = hash.hashStringTo8ByteInt(title);
     const start = title.length;
     const end = title.charAt(0);
-    console.log(bptree.set(title, new Value(title, start, end)));
+    console.log(bptree.set(title, new Value(hashedTitle, start, end)));
     const value = bptree.get(req.params.title);
     res.send(title + ': [' + value.username + ', ' + value.start + ', ' + value.end + ']');
   } catch (err) {
