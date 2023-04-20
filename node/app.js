@@ -5,12 +5,25 @@ const morgan = require('morgan');
 const dotenv = require('dotenv');
 const path = require('path');
 const nunjucks = require('nunjucks');
-const bplustree = require('./structures/bplustree');
+// const bplustree = require('./structures/bplustree');
+const { BTree } = require("node-btree"); // https://www.npmjs.com/package/i2bplustree
 
 dotenv.config();
 
  /* change degree later */
-const bptree = new bplustree.BPlusTree(3);
+ function comparator(a, b) {
+  if (a > b) {
+    return 1;
+  }
+  else if (a < b) {
+    return -1;
+  }
+  else {
+    return 0;
+  }
+}
+
+const bptree = new BTree(comparator); // use 100 : 199^3 ~ 8M
 const indexRouter = require('./routes/index');
 // const articleRouter = require('./routes/article')(bptree);
 // const contributorRouter = require('./routes/contributor');
@@ -43,32 +56,32 @@ const hash = require('./structures/hash');
 app.route('/article')
   .get(async (req, res, next) => {
     try {
-      console.log(bptree.visualize());
-      res.send('search as article/:title');
+      //const visual = bptree.visualize();
+      //console.log(visual);
+      res.send('search with article/:title');
     } catch (err) {
       console.error(err);
       next(err);
     }
   });
 
-app.get('/article/:title', async (req, res, next) => {
-    try{
-        const title = req.params.title;
-        const hashedTitle = hash.hashStringTo8ByteInt(title);
-        const start = title.length;
-        const end = title.charAt(0);
-        bptree.insert(title, hashedTitle, start, end);
-        res.send('Title: ' + title + ', Hashed title: ' + hashedTitle + ', start: ' + start + ', end: ' + end);
-      } catch (err) {
-        console.error(err);
-        next(err);
-      }
-});
+class Value{
+  constructor(username, start, end){
+    this.username = username;
+    this.start = start;
+    this.end = end;
+  }
+}
 
-app.get('/article/find/:title', async (req, res, next) => {
+app.get('/article/:title', async (req, res, next) => {
   try{
-    const value = bptree.search(req.params.title);
-    res.send('Found Hashed title: ' + value.username);
+    const title = req.params.title;
+    const hashedTitle = hash.hashStringTo8ByteInt(title);
+    const start = title.length;
+    const end = title.charAt(0);
+    console.log(bptree.set(title, new Value(title, start, end)));
+    const value = bptree.get(req.params.title);
+    res.send(title + ': [' + value.username + ', ' + value.start + ', ' + value.end + ']');
   } catch (err) {
     console.error(err);
     next(err);
