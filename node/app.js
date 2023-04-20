@@ -5,7 +5,6 @@ const morgan = require('morgan');
 const dotenv = require('dotenv');
 const path = require('path');
 const nunjucks = require('nunjucks');
-const connect = require('./schemas');
 const bplustree = require('./structures/bplustree');
 
 dotenv.config();
@@ -25,7 +24,6 @@ nunjucks.configure('views', {
     express: app,
     watch: true,
 })
-connect();
 
 app.use(morgan('dev'));
 // app.use(express.static(path.join(__dirname, 'public'))); // put style files in ./public
