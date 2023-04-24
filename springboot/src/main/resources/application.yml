@@ -20,4 +20,5 @@ spring:
     database-platform: org.hibernate.dialect.MySQL8Dialect
 logging.level:
   org.hibernate.SQL: debug
-
+server:
+  port: 8082
