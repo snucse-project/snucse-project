@@ -7,7 +7,11 @@ const path = require('path');
 const nunjucks = require('nunjucks');
 // const bplustree = require('./structures/bplustree');
 const { BTree } = require("node-btree"); // https://www.npmjs.com/package/i2bplustree
-const spawn = require('child_process').spawn
+const spawn = require('child_process').spawn;
+const fs = require('fs');
+const JSONStream = require('JSONStream');
+
+var filepath;
 
 dotenv.config();
 
@@ -76,8 +80,8 @@ class Value{
 
 app.post('/init', function(req, res, next){
   try {
-    const path = req.body.path;
-    const childPython = spawn('python3', ['parse.py', path]);
+    filepath = req.body.path;
+    const childPython = spawn('python3', ['parse.py', filepath]);
 
     var result = "";
     childPython.stdout.on('data', (data) => {
@@ -101,11 +105,44 @@ app.get('/article/:title', async (req, res, next) => {
   try{
     const title = req.params.title;
     const hashedTitle = hash.hashStringTo8ByteInt(title);
-    const start = title.length;
-    const end = title.charAt(0);
-    console.log(bptree.set(title, new Value(hashedTitle, start, end)));
-    const value = bptree.get(req.params.title);
-    res.send(title + ': [' + value.username + ', ' + value.start + ', ' + value.end + ']');
+
+    if (!bptree.has(hashedTitle)) {
+      res.status(404).send(`Article "${title}" doesn't exist.`);
+    } else {
+      const value = bptree.get(hashedTitle);
+      res.set('Content-Type', 'text/html');
+      res.write(`title: ${title}<br/>`);
+      res.write(`contributor: ${value.username}<br/>`);
+      res.write(`start, end: (${value.start}, ${value.end})<br/><br/>`);
+
+      // Using Byte Offset
+      // To compare performance, comment out following lines
+      // and uncomment 'Without Using Byte Offset' part below.
+      const stream = fs.createReadStream(filepath, {
+        encoding: 'utf8',
+        start: value.start,
+        end: value.end
+      });
+      stream
+        .on('data', (data) => {
+          res.write(data.toString());
+        })
+        .on('end', () => {
+          res.end();
+        });
+
+      // Without Using Byte Offset
+      /*
+      const stream = fs.createReadStream(filepath, {encoding: 'utf8'});
+      stream.pipe(JSONStream.parse('*'))
+        .on('data', (page) => {
+          if (page.title===title) {
+            res.write(JSON.stringify(page.revision.text["#text"]));
+            return res.end();
+          }
+        });
+      */
+    }
   } catch (err) {
     console.error(err);
     next(err);
