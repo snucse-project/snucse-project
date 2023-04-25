@@ -9,8 +9,8 @@ parsed_data = []
 with open(file_path, mode='r', encoding='utf8') as input_file:
 	title_found = False
 
-	line = input_file.readline()
 	start = input_file.tell()
+	line = input_file.readline()
 	while line:
 		if ("\"title\"" in line) and (not title_found):
 			title = line.split(':')[1].strip().rstrip(',').strip('\"')
