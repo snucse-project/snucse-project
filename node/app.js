@@ -7,6 +7,7 @@ const path = require('path');
 const nunjucks = require('nunjucks');
 // const bplustree = require('./structures/bplustree');
 const { BTree } = require("node-btree"); // https://www.npmjs.com/package/i2bplustree
+const spawn = require('child_process').spawn
 
 dotenv.config();
 
@@ -72,6 +73,29 @@ class Value{
     this.end = end;
   }
 }
+
+app.post('/init', function(req, res, next){
+  try {
+    const path = req.body.path;
+    const childPython = spawn('python3', ['parse.py', path]);
+
+    var result = "";
+    childPython.stdout.on('data', (data) => {
+      result += data.toString();
+    });
+
+    childPython.stdout.on('end', () => {
+      const parsed_data = JSON.parse(result);
+      for (item of parsed_data) {
+        bptree.set(hash.hashStringTo8ByteInt(item.title), new Value(item.contributor, item.start, item.end));
+      }
+      res.send(""+bptree.size);
+    });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+});
 
 app.get('/article/:title', async (req, res, next) => {
   try{

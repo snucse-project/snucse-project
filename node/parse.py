@@ -15,7 +15,7 @@ with open(file_path, mode='r', encoding='utf8') as input_file:
 		if ("\"title\"" in line) and (not title_found):
 			title = line.split(':')[1].strip().rstrip(',').strip('\"')
 			title_found = True
-		if ("\"username\"" in line) and title_found:
+		if ("\"username\"" in line or "\"ip\"" in line) and title_found:
 			contributor = line.split(':')[1].strip().rstrip(',').strip('\"')
 		if ("\"#text\":" in line) and title_found:
 			start += 25
@@ -26,5 +26,6 @@ with open(file_path, mode='r', encoding='utf8') as input_file:
 		start = input_file.tell()
 		line = input_file.readline()
 
-with open('parsed.json', mode='w', encoding='utf8') as output_file:
-    json.dump(parsed_data, output_file, indent=4)
+print(json.dumps(parsed_data, indent=4))
+#with open('parsed.json', mode='w', encoding='utf8') as output_file:
+#    json.dump(parsed_data, output_file, indent=4)
