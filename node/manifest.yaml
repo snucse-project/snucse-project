@@ -10,7 +10,7 @@ metadata:
   labels:
     app: wiki-search-engine
 spec:
-  replicas: 5
+  replicas: 1
   selector:
     matchLabels:
       app: wiki-search-engine
