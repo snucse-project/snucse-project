@@ -4,10 +4,6 @@ on:
   push:
     branches: [ server-DS, main ]
 
-env:
-  IMAGE: yeonsumia/wiki-search-engine
-  TAG: node
-
 defaults:
   run:
     working-directory: ./node
@@ -71,7 +67,7 @@ jobs:
           file: ./node/Dockerfile
           platforms: linux/amd64
           push: true
-          tags: $IMAGE:$TAG
+          tags: yeonsumia/wiki-search-engine:node
       
       - name: Set up Kustomize
         run: |-
@@ -81,7 +77,4 @@ jobs:
       - name: Deploy the Docker image to the GKE cluster
         env:
           PROJECT_ID: ${{ secrets.GCP_PROJECT_ID_DEV }}
-        run: |-
-          # replacing the image name in the k8s template
-          ./kustomize edit set image gcr.io/$PROJECT_ID/$IMAGE:v1=gcr.io/$PROJECT_ID/$IMAGE:$TAG
-          ./kustomize build . | kubectl apply -f manifest.yaml
+        run: kubectl apply -f manifest.yaml
