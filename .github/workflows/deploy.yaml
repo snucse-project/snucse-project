@@ -75,6 +75,6 @@ jobs:
           chmod u+x ./kustomize
 
       - name: Deploy the Docker image to the GKE cluster
-        env:
-          PROJECT_ID: ${{ secrets.GCP_PROJECT_ID_DEV }}
-        run: kubectl apply -f manifest.yaml
+        run: |-
+          docker pull yeonsumia/wiki-search-engine:node
+          kubectl apply -f manifest.yaml
