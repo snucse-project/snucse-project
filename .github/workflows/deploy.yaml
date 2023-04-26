@@ -5,8 +5,14 @@ on:
     branches: [ server-DS, main ]
 
 env:
-
+  SA_KEY: ${{ secrets.GCP_SA_KEY_DEV }}
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID_DEV }}
+  GKE_CLUSTER: ${{ secrets.GKE_CLUSTER }}
+  GKE_REGION: ${{ secrets.GKE_REGION }}
+  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
   IMAGE: yeonsumia/wiki-search-engine
+  TAG: node
 
 defaults:
   run:
@@ -28,17 +34,19 @@ jobs:
       - name: Setup gcloud CLI
         uses: google-github-actions/setup-gcloud@94337306dda8180d967a56932ceb4ddcf01edae7
         with:
-          service_account_key: ${{ secrets.GCP_SA_KEY_DEV }}
-          project_id: ${{ secrets.GCP_PROJECT_ID_DEV }}
+          service_account_key: $SA_KEY
+          project_id: ${{ env.PROJECT_ID }}
+      # Configure Docker to use the gcloud command-line tool as a credential
+      # helper for authentication
       - run: |-
           gcloud --quiet auth configure-docker
 
       - name: Get GKE credentials
         uses: google-github-actions/get-gke-credentials@fb08709ba27618c31c09e014e1d8364b02e5042e
         with:
-          cluster_name: ${{ secrets.GKE_CLUSTER }}
-          location: ${{ secrets.GKE_REGION }}
-          credentials: ${{ secrets.GCP_SA_KEY_DEV }}
+          cluster_name: $GKE_CLUSTER
+          location: $GKE_REGION
+          credentials: $SA_KEY
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
@@ -62,8 +70,8 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_TOKEN
 
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v2
@@ -72,7 +80,7 @@ jobs:
           file: ./node/Dockerfile
           platforms: linux/amd64
           push: true
-          tags: $GITHUB_SHA
+          tags: $TAG
       
       - name: Set up Kustomize
         run: |-
@@ -80,10 +88,7 @@ jobs:
           chmod u+x ./kustomize
 
       - name: Deploy the Docker image to the GKE cluster
-        env:
-          PROJECT_ID: ${{ secrets.GCP_PROJECT_ID_DEV }}
-          IMAGE: yeonsumia/wiki-search-engine
         run: |-
           # replacing the image name in the k8s template
-          ./kustomize edit set image gcr.io/$PROJECT_ID/$IMAGE:v1=gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA
+          ./kustomize edit set image gcr.io/$PROJECT_ID/$IMAGE:v1=gcr.io/$PROJECT_ID/$IMAGE:$TAG
           ./kustomize build . | kubectl apply -f manifest.yaml
