@@ -10,7 +10,9 @@ defaults:
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID_DEV }}
-  IMAGE: hello-app
+  IMAGE: wiki-search-engine
+  REGISTRY: gcr.io
+
 jobs:
   deploy:
       name: CI/CD
@@ -29,8 +31,11 @@ jobs:
         with:
           service_account_key: ${{ secrets.GCP_SA_KEY_DEV }}
           project_id: ${{ secrets.GCP_PROJECT_ID_DEV }}
-      - run: |-
+
+      - name: Google Cloud auth for configure-docker
+        run: |-
           gcloud --quiet auth configure-docker
+
       - name: Get GKE credentials
         uses: google-github-actions/get-gke-credentials@fb08709ba27618c31c09e014e1d8364b02e5042e
         with:
@@ -42,30 +47,32 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm ci
-      - run: npm run build --if-present
-      - run: npm test
+      
+      - name: npm install, build, and test
+        run: |-
+          npm ci
+          npm run build --silent
+          npm test
 
-      # Build the Docker image
-      - name: Build
+      - name: Build the Docker image
         run: |-
           docker build \
             --tag "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA" \
             --build-arg GITHUB_SHA="$GITHUB_SHA" \
             --build-arg GITHUB_REF="$GITHUB_REF" \
             .
-      # Push the Docker image to Google Artifact Registry
-      - name: Publish
+
+      - name: Push the Docker image to Google Artifact Registry
         run: |-
-          docker push "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA"
-      # Set up kustomize
+          docker push "$REGISTRY/$PROJECT_ID/$IMAGE:$GITHUB_SHA"
+
       - name: Set up Kustomize
         run: |-
           curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
           chmod u+x ./kustomize
-      # Deploy the Docker image to the GKE cluster
-      - name: Deploy
+
+      - name: Deploy the Docker image to the GKE cluster
         run: |-
           # replacing the image name in the k8s template
-          ./kustomize edit set image gcr.io/$PROJECT_ID/$IMAGE:v1=gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA
+          ./kustomize edit set image $REGISTRY/$PROJECT_ID/$IMAGE:v1=$REGISTRY/$PROJECT_ID/$IMAGE:$GITHUB_SHA
           ./kustomize build . | kubectl apply -f -
