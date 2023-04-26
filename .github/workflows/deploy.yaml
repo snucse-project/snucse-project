@@ -34,8 +34,8 @@ jobs:
       - name: Setup gcloud CLI
         uses: google-github-actions/setup-gcloud@94337306dda8180d967a56932ceb4ddcf01edae7
         with:
-          service_account_key: $SA_KEY
-          project_id: $PROJECT_ID
+          service_account_key: ${{ env.SA_KEY }}
+          project_id: ${{ env.PROJECT_ID }}
       # Configure Docker to use the gcloud command-line tool as a credential
       # helper for authentication
       - run: |-
@@ -44,9 +44,9 @@ jobs:
       - name: Get GKE credentials
         uses: google-github-actions/get-gke-credentials@fb08709ba27618c31c09e014e1d8364b02e5042e
         with:
-          cluster_name: $GKE_CLUSTER
-          location: $GKE_REGION
-          credentials: $SA_KEY
+          cluster_name: ${{ env.GKE_CLUSTER }}
+          location: ${{ env.GKE_REGION }}
+          credentials: ${{ env.SA_KEY }}
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
@@ -70,8 +70,8 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
-          username: $DOCKERHUB_USERNAME
-          password: $DOCKERHUB_TOKEN
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
 
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v2
