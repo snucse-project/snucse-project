@@ -31,7 +31,7 @@ jobs:
         id: docker_meta
         uses: crazy-max/ghaction-docker-meta@v1
         with:
-          images: snucse-project/wiki-search-engine
+          images: yeonsumia/wiki-search-engine
           tag-semver: |
             {{version}}
             {{major}}.{{minor}}

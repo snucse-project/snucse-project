@@ -3,6 +3,9 @@ FROM node:18.12-alpine3.16
 
 WORKDIR /app
 
+# to build in local:
+# COPY package.json .
+# to build for CI/CD:
 COPY /node/package.json .
 # cmake, build-essentials, libglib2.0-dev required for node-btree
 RUN apk update && \
