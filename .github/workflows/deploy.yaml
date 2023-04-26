@@ -48,11 +48,14 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       
-      - name: npm install, build, and test
-        run: |-
-          npm ci
-          npm run build
-          npm test
+      - name: npm install
+        run: npm ci
+
+      - name: npm build
+        run: npm run build
+        
+      - name: npm test
+        run: npm test
 
       - name: Build the Docker image
         run: |-
