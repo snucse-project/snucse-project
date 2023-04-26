@@ -74,6 +74,6 @@ jobs:
       - name: Deploy the Docker image to the GKE cluster
         run: |-
           # replacing the image name in the k8s template
-          ./kustomize edit set image $REGISTRY/$PROJECT_ID/$IMAGE:v1=$REGISTRY/$PROJECT_ID/$IMAGE:$GITHUB_SHA
+          ./kustomize edit set image REGISTRY/PROJECT_ID/IMAGE:TAG=$REGISTRY/$PROJECT_ID/$IMAGE:$GITHUB_SHA
           ./kustomize build . | kubectl apply -f -
           kubectl get services -o wide

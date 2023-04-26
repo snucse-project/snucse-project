@@ -26,7 +26,7 @@ spec:
         app: wiki-search-engine
     spec:
       containers:
-        - image: yeonsumia/wiki-search-engine:server-DS
+        - image: REGISTRY/PROJECT_ID/IMAGE:TAG
           name: wiki-search-server
           ports:
             - containerPort: 3000
