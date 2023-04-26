@@ -71,7 +71,7 @@ jobs:
           file: ./node/Dockerfile
           platforms: linux/amd64
           push: true
-          tags: $TAG
+          tags: $IMAGE:$TAG
       
       - name: Set up Kustomize
         run: |-
