@@ -57,12 +57,11 @@ jobs:
       - name: Build the Docker image
         run: |-
           docker build \
-            --tag "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA" \
+            --tag "$REGISTRY/$PROJECT_ID/$IMAGE:$GITHUB_SHA" \
             --build-arg GITHUB_SHA="$GITHUB_SHA" \
-            --build-arg GITHUB_REF="$GITHUB_REF" \
             .
 
-      - name: Push the Docker image to Google Artifact Registry
+      - name: Push the Docker image to Google Container Registry
         run: |-
           docker push "$REGISTRY/$PROJECT_ID/$IMAGE:$GITHUB_SHA"
 
@@ -76,4 +75,5 @@ jobs:
           # replacing the image name in the k8s template
           ./kustomize edit set image REGISTRY/PROJECT_ID/IMAGE:TAG=$REGISTRY/$PROJECT_ID/$IMAGE:$GITHUB_SHA
           ./kustomize build . | kubectl apply -f -
-          kubectl get services -o wide
+          kubectl get services -o wide --namespace=snucse-project
+          kubectl get pods -o wide --namespace=snucse-project
