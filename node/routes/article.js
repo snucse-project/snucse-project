@@ -1,75 +1,40 @@
 const express = require('express');
-const Article = require('../schemas/article');
+const hash = require('../structures/hash');
 
 const router = express.Router();
 
-// GET all articles
+// default
 router.route('/')
   .get(async (req, res, next) => {
     try {
-      const articles = await Article.find({}, {_id: false});
-      console.log(articles);
-      res.json(articles);
+      console.log(bptree.visualize());
+      res.send('search as article/:title');
     } catch (err) {
       console.error(err);
       next(err);
     }
   });
 
-// GET article by title
+// GET article by title (but temporary working as POST)
 router.get('/:title', async (req, res, next) => {
   try{
-    const article = await Article.findOne({title: req.params.title});
-    if(article == null){
-     return res.status(404).send('article is not found with the given title.');
-    }
-    console.log(article);
-    res.json(article);
+    const title = req.params.title;
+    const hashedTitle = hash.hashStringTo8ByteInt(title);
+    const start = title.length;
+    const end = hashedTitle.length;
+    bptree.insert(title, hashedTitle, start, end);
+    res.send('Title: ' + title + ', Hashed title: ' + hashedTitle + ', start: ' + start, ', end: ' + end);
   } catch (err) {
     console.error(err);
     next(err);
   }
 });
 
-// GET informations of article by title
-router.get('/info/:title', async (req, res, next) => {
+// for test
+router.get('/find/:title', async (req, res, next) => {
   try{
-    const article = await Article.find({title: req.params.title}, {_id: false, revision: false});
-    if(typeof article != "undefined"){
-      return res.status(404).send('article information is not found with the given title.');
-     }
-    console.log(article);
-    res.json(article);
-  } catch (err) {
-    console.error(err);
-    next(err);
-  }
-});
-
-// GET content of article by title
-router.get('/content/:title', async (req, res, next) => {
-  try{
-    const article = await Article.find({title: req.params.title}, { _id: false, revision: true});
-    if(typeof article != "undefined"){
-      return res.status(404).send('article information is not found with the given title.');
-     }
-    console.log(article);
-    res.json(article);
-  } catch (err) {
-    console.error(err);
-    next(err);
-  }
-});
-
-// GET articles by contributor username
-router.get('/contributor/:username', async (req, res, next) => {
-  try{
-    const article = await Article.find({"revision.contributor.username": req.params.username}, {_id: false});
-    if(typeof article != "undefined"){
-      return res.status(404).send('article information is not found with the given contributor.');
-     }
-    console.log(article);
-    res.json(article);
+    const value = bptree.search(req.params.title);
+    res.send('Found Hashed title: ' + hashedTitle);
   } catch (err) {
     console.error(err);
     next(err);
