@@ -31,7 +31,7 @@ dotenv.config();
 }
 
 const bptree = new BTree(comparator); // use 100 : 199^3 ~ 8M
-const titleCache = new cache.Cache(8192);        // @param memory limit
+const titleCache = new cache.Cache(160000);        // @param memory limit
 const indexRouter = require('./routes/index');
 // const articleRouter = require('./routes/article')(bptree);
 // const contributorRouter = require('./routes/contributor');
@@ -88,7 +88,7 @@ app.post('/init', function(req, res, next){
     childPython.stdout.on('data', (data) => {
       result += data.toString();
     });
-
+    
     childPython.stdout.on('end', () => {
       const parsed_data = JSON.parse(result);
       for (item of parsed_data) {
@@ -106,8 +106,8 @@ app.get('/article/:title', async (req, res, next) => {
   try{
     const title = req.params.title;
     const hashedTitle = hash.hashStringTo8ByteInt(title);
-    const cachedStream = titleCache.find(hashedTitle);
-    if (cachedStream === null){
+    const cachedArticle = titleCache.find(hashedTitle);
+    if (cachedArticle === null){
       if (!bptree.has(hashedTitle)) {
         res.status(404).send(`Article "${title}" doesn't exist.`);
       }
@@ -121,17 +121,19 @@ app.get('/article/:title', async (req, res, next) => {
         // Using Byte Offset
         // To compare performance, comment out following lines
         // and uncomment 'Without Using Byte Offset' part below.
+        let readArticle = '';
         const stream = fs.createReadStream(filepath, {
           encoding: 'utf8',
           start: value.start,
           end: value.end
         });
-        titleCache.insert(hashedTitle, stream, value.end - value.start);
         stream
           .on('data', (data) => {
             res.write(data.toString());
+            readArticle += data;
           })
           .on('end', () => {
+            titleCache.insert(hashedTitle, readArticle, value.end - value.start);
             res.end();
           });
   
@@ -149,13 +151,7 @@ app.get('/article/:title', async (req, res, next) => {
       }
     }
     else {
-      cachedStream
-        .on('data', (data) => {
-          res.write(data.toString());
-        })
-        .on('end', () => {
-          res.end();
-        });
+      res.send(cachedArticle);
     }
   } catch (err) {
     console.error(err);
