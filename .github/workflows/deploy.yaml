@@ -2,7 +2,7 @@ name: CI/CD
 
 on:
   push:
-    branches: [ deploy, server-DS, main ]
+    branches: [ deploy, main ]
 
 defaults:
   run:
