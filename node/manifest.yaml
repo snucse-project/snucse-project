@@ -7,11 +7,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: wiki-search-engine
-  namespace: snucse-project
+  namespace: default
   labels:
     app: wiki-search-engine
 spec:
-  replicas: 2
+  replicas: 5
   selector:
     matchLabels:
       app: wiki-search-engine
@@ -24,21 +24,30 @@ spec:
   template:
     metadata:
       name: wiki-search-engine
-      namespace: snucse-project
+      namespace: default
       labels:
         app: wiki-search-engine
     spec:
       containers:
-        - image: REGISTRY/PROJECT_ID/IMAGE:TAG
-          name: wiki-search-server
+        - name: wiki-search-server
+          image: REGISTRY/PROJECT_ID/IMAGE:TAG
           ports:
             - containerPort: 3000
+          volumeMounts:
+            - mountPath: /tmp/data
+              name: wiki-search-engine-volume
+              readOnly: true
+      volumes:
+        - name: wiki-search-engine-volume
+          persistentVolumeClaim:
+            claimName: wiki-search-engine-pvc
+            readOnly: true
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: wiki-search-engine
-  namespace: snucse-project
+  namespace: default
 spec:
   type: LoadBalancer
   selector:
