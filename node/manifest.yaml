@@ -29,10 +29,20 @@ spec:
         app: wiki-search-engine
     spec:
       containers:
-        - image: REGISTRY/PROJECT_ID/IMAGE:TAG
-          name: wiki-search-server
+        - name: wiki-search-server
+          image: REGISTRY/PROJECT_ID/IMAGE:TAG
           ports:
             - containerPort: 3000
+          volumeMounts:
+            - mountPath: /tmp/data
+              name: wiki-search-engine-volume
+              readOnly: true
+      volumes:
+        - name: wiki-search-engine-volume
+          persistentVolumeClaim:
+            claimName: wiki-search-engine-pvc
+            readOnly: true
+            
 ---
 apiVersion: v1
 kind: Service
