@@ -7,7 +7,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: wiki-search-engine
-  namespace: snucse-project
+  namespace: default
   labels:
     app: wiki-search-engine
 spec:
@@ -24,7 +24,7 @@ spec:
   template:
     metadata:
       name: wiki-search-engine
-      namespace: snucse-project
+      namespace: default
       labels:
         app: wiki-search-engine
     spec:
@@ -38,7 +38,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: wiki-search-engine
-  namespace: snucse-project
+  namespace: default
 spec:
   type: LoadBalancer
   selector:
