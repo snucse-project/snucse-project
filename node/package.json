@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "description": "node.js server for CID project",
   "main": "app.js",
+  "nodemonConfig": {
+    "ignore": [
+      "../tmp/data/*"
+    ]
+  },
   "scripts": {
     "start": "nodemon app"
   },
