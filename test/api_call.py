@@ -65,7 +65,7 @@ if __name__ == "__main__":
     json_dir = args.json_dir
     type = args.type
     address = args.address
-    url_prefix = f"http://{address}:3000/article"
+    url_prefix = f"http://{address}/article"
     parallel = int(args.parallel)
 
     articles = parse_data(json_dir)
