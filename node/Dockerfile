@@ -8,7 +8,8 @@ COPY . .
 RUN apk update && \
 apk --no-cache --virtual add \
 g++ \
-cmake build-base glib-dev
+cmake build-base glib-dev \
+bash curl vim \
 
 RUN npm install
 
