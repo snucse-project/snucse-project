@@ -42,6 +42,7 @@ spec:
           persistentVolumeClaim:
             claimName: wiki-search-engine-pvc
             readOnly: true
+
 ---
 apiVersion: v1
 kind: Service
