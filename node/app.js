@@ -7,6 +7,8 @@ const path = require('path');
 const nunjucks = require('nunjucks');
 // const bplustree = require('./structures/bplustree');
 const { BTree } = require("node-btree"); // https://www.npmjs.com/package/i2bplustree
+const hash = require('./structures/hash');
+const cache = require('./structures/cache');
 const spawn = require('child_process').spawn;
 const fs = require('fs');
 const JSONStream = require('JSONStream');
@@ -29,6 +31,7 @@ dotenv.config();
 }
 
 const bptree = new BTree(comparator); // use 100 : 199^3 ~ 8M
+const titleCache = new cache.Cache(160000);        // @param memory limit
 const indexRouter = require('./routes/index');
 // const articleRouter = require('./routes/article')(bptree);
 // const contributorRouter = require('./routes/contributor');
@@ -56,8 +59,6 @@ app.use('/', indexRouter);
 
 /* not easy to use declared B+ tree in routers
    refactor this part later */
-const hash = require('./structures/hash');
-
 app.route('/article')
   .get(async (req, res, next) => {
     try {
@@ -105,43 +106,52 @@ app.get('/article/:title', async (req, res, next) => {
   try{
     const title = req.params.title;
     const hashedTitle = hash.hashStringTo8ByteInt(title);
-
-    if (!bptree.has(hashedTitle)) {
-      res.status(404).send(`Article "${title}" doesn't exist.`);
-    } else {
-      const value = bptree.get(hashedTitle);
-      res.set('Content-Type', 'text/html');
-      res.write(`title: ${title}<br/>`);
-      res.write(`contributor: ${value.username}<br/>`);
-      res.write(`start, end: (${value.start}, ${value.end})<br/><br/>`);
-
-      // Using Byte Offset
-      // To compare performance, comment out following lines
-      // and uncomment 'Without Using Byte Offset' part below.
-      const stream = fs.createReadStream(filepath, {
-        encoding: 'utf8',
-        start: value.start,
-        end: value.end
-      });
-      stream
-        .on('data', (data) => {
-          res.write(data.toString());
-        })
-        .on('end', () => {
-          res.end();
+    const cachedArticle = titleCache.find(hashedTitle);
+    if (cachedArticle === null){
+      if (!bptree.has(hashedTitle)) {
+        res.status(404).send(`Article "${title}" doesn't exist.`);
+      }
+      else {
+        const value = bptree.get(hashedTitle);
+        res.set('Content-Type', 'text/html');
+        res.write(`title: ${title}<br/>`);
+        res.write(`contributor: ${value.username}<br/>`);
+        res.write(`start, end: (${value.start}, ${value.end})<br/><br/>`);
+  
+        // Using Byte Offset
+        // To compare performance, comment out following lines
+        // and uncomment 'Without Using Byte Offset' part below.
+        let readArticle = '';
+        const stream = fs.createReadStream(filepath, {
+          encoding: 'utf8',
+          start: value.start,
+          end: value.end
         });
-
-      // Without Using Byte Offset
-      /*
-      const stream = fs.createReadStream(filepath, {encoding: 'utf8'});
-      stream.pipe(JSONStream.parse('*'))
-        .on('data', (page) => {
-          if (page.title===title) {
-            res.write(JSON.stringify(page.revision.text["#text"]));
-            return res.end();
-          }
-        });
-      */
+        stream
+          .on('data', (data) => {
+            res.write(data.toString());
+            readArticle += data;
+          })
+          .on('end', () => {
+            titleCache.insert(hashedTitle, readArticle, value.end - value.start);
+            res.end();
+          });
+  
+        // Without Using Byte Offset
+        /*
+        const stream = fs.createReadStream(filepath, {encoding: 'utf8'});
+        stream.pipe(JSONStream.parse('*'))
+          .on('data', (page) => {
+            if (page.title===title) {
+              res.write(JSON.stringify(page.revision.text["#text"]));
+              return res.end();
+            }
+          });
+        */
+      }
+    }
+    else {
+      res.send(cachedArticle);
     }
   } catch (err) {
     console.error(err);
