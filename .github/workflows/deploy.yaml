@@ -77,3 +77,4 @@ jobs:
           ./kustomize edit set image REGISTRY/PROJECT_ID/IMAGE:TAG=$REGISTRY/$PROJECT_ID/$IMAGE:$GITHUB_SHA
           ./kustomize build . | kubectl apply -f -
           kubectl get services -o wide
+          kubectl get pods -o wide

@@ -1,10 +1,8 @@
 {
     "metadata": {
-        "url": "http://34.22.82.142:3000/article/AfghanistanHistory",
-        "payload": "foo",
-        "qps": "40",
+        "url": "34.22.82.142:3000/article/AfghanistanHistory",
+        "qps": "10000",
         "c": "2",
-        "t": "0.1s",
         "save": "on"
     }
 }
