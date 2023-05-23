@@ -55,15 +55,17 @@ if __name__ == "__main__":
     assert sys.version_info >= (3, 7), "Script requires Python 3.7+."
     here = pathlib.Path(__file__).parent
 
-    url_prefix = "http://34.22.82.142:3000/article"
     parser = argparse.ArgumentParser()
     parser.add_argument('-j', '--json_dir') # wikipedia articles (json)
     parser.add_argument('-t', '--type')
     parser.add_argument('-p', '--parallel')
+    parser.add_argument('-a', '--address')
     args = parser.parse_args()
 
     json_dir = args.json_dir
     type = args.type
+    address = args.address
+    url_prefix = f"http://{address}:3000/article"
     parallel = int(args.parallel)
 
     articles = parse_data(json_dir)
@@ -88,18 +90,3 @@ if __name__ == "__main__":
     end = time.time()
     
     print(f"{end - start:.5f} sec")
-
-
-            # my_factory = ZipfFromText()
-            # my_factory.set_word_filter(lambda w: len(w) > 1)
-            # my_zipf = my_factory.run(article['text'])
-            # print(my_zipf)
-        
-
-
-    
-
-    # while True:
-    #     response = requests.get(url)
-    #     print(response.text)
-    #     time.sleep(1)
