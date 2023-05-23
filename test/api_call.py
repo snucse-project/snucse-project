@@ -7,6 +7,7 @@ import aiohttp
 from aiohttp import ClientSession, ClientConnectorError
 import time
 import os
+import random
 
 async def fetch_html(url: str, session: ClientSession, **kwargs) -> tuple:
     try:
@@ -57,8 +58,8 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-j', '--json_dir') # wikipedia articles (json)
-    parser.add_argument('-t', '--type')
-    parser.add_argument('-p', '--parallel')
+    parser.add_argument('-t', '--type', choices=["random", "stride", "link"])
+    parser.add_argument('-p', '--parallel', default=1)
     parser.add_argument('-a', '--address')
     args = parser.parse_args()
 
@@ -79,10 +80,19 @@ if __name__ == "__main__":
                 writer.write(url)
 
     urls = []
-    
+
+    assert type != "random" or parallel == 1
     for p in range(parallel):
         with open(os.path.join(here, f"url/url_{p}.txt"), mode='r') as reader:
             urls.append(set(map(str.strip, reader)))
+    if type == "random": # random query pattern
+        parallel = 1 
+        random.shuffle(urls)
+    elif type == "stride": # strided query pattern
+        assert parallel > 1
+    elif type == "link": # linked query pattern
+        assert parallel > 1
+        pass
 
     start = time.time()
     for p in range(parallel):
