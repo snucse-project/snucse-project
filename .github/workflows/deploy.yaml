@@ -4,7 +4,6 @@ on:
   push:
     branches: [ deploy, main ]
 
-
 defaults:
   run:
     working-directory: ./node
