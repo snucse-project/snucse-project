@@ -88,6 +88,7 @@ app.post('/init', function(req, res, next){
     childPython.stdout.on('data', (data) => {
       result += data.toString();
     });
+   
     childPython.stdout.on('end', () => {
       const parsed_data = JSON.parse(result);
       for (item of parsed_data) {
