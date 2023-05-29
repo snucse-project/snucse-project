@@ -12,7 +12,8 @@ bash curl vim
 
 RUN npm install
 
-RUN chown -R node:node /app/node_modules
+RUN chown -R node:node ./node_modules
+RUN chmod +x ./startup.sh
 
 USER node
 
