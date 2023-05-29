@@ -41,7 +41,7 @@ jobs:
         with:
           cluster_name: ${{ secrets.GKE_CLUSTER }}
           location: ${{ secrets.GKE_REGION }}
-          credentials: ${{ secrets.GCP_SA_KEY_DEV }}
+          credentials: ${{ secrets.GCP_SA_KEY }}
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
