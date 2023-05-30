@@ -11,3 +11,5 @@ echo $(netstat -lntp | grep 3000) # for ubuntu
 #      -X POST localhost:3000/init
 # sleep 600
 # curl -X GET localhost:3000/article/Anarchism # test query
+
+exit 0
