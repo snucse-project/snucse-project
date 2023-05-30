@@ -37,6 +37,10 @@ spec:
             - mountPath: /tmp/data
               name: wiki-search-engine-volume
               readOnly: true
+          lifecycle:
+            postStart:
+              exec:
+                command: ["/bin/sh", "-c", "./startup.sh"]
       volumes:
         - name: wiki-search-engine-volume
           persistentVolumeClaim:
