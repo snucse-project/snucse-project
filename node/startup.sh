@@ -11,5 +11,3 @@ curl -d '{ "path": "../tmp/data/enwiki_test_articles.json" }' \
      -X POST localhost:3000/init
 sleep 300
 curl -X GET localhost:3000/article/Anarchism # test query
-
-exit(0)
