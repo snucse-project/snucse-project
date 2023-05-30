@@ -28,6 +28,7 @@ spec:
       labels:
         app: wiki-search-engine
     spec:
+      restartPolicy: OnFailure
       containers:
         - name: wiki-search-server
           image: REGISTRY/PROJECT_ID/IMAGE:TAG
@@ -42,7 +43,6 @@ spec:
           persistentVolumeClaim:
             claimName: wiki-search-engine-pvc
             readOnly: true
-      terminationGracePeriodSeconds: 120 # default: 30
             
 ---
 apiVersion: v1
