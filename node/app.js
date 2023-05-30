@@ -37,7 +37,7 @@ const indexRouter = require('./routes/index');
 // const contributorRouter = require('./routes/contributor');
 
 const app = express();
-app.set('port', process.env.PORT || 7777);
+app.set('port', process.env.PORT || 3000);
 
 /* view engine setup */
 app.set('view engine', 'html'); // put layout files in ./views

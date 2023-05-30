@@ -19,4 +19,4 @@ USER node
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+ENTRYPOINT ["/bin/bash", "-c", "./startup.sh"]

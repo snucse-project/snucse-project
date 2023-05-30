@@ -33,10 +33,6 @@ spec:
           image: REGISTRY/PROJECT_ID/IMAGE:TAG
           ports:
             - containerPort: 3000
-          lifecycle:
-            postStart:
-              exec:
-                command: ["/bin/bash", "-c", "./startup.sh"]
           volumeMounts:
             - mountPath: /tmp/data
               name: wiki-search-engine-volume
