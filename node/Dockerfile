@@ -19,4 +19,4 @@ USER node
 
 EXPOSE 3000
 
-ENTRYPOINT ["/bin/bash", "-c", "./startup.sh"]
+CMD ["/bin/bash", "-c", "./startup.sh"]

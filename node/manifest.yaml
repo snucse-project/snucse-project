@@ -28,7 +28,6 @@ spec:
       labels:
         app: wiki-search-engine
     spec:
-      restartPolicy: OnFailure
       containers:
         - name: wiki-search-server
           image: REGISTRY/PROJECT_ID/IMAGE:TAG
