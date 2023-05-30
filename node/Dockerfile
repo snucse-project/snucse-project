@@ -19,4 +19,4 @@ USER node
 
 EXPOSE 3000
 
-CMD ["/bin/bash", "-c", "./startup.sh"]
+CMD ["./node_modules/.bin/pm2", "start", "app.js"]
