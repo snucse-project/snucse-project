@@ -1,7 +1,10 @@
 #!/bin/bash
 
 ./node_modules/.bin/pm2 start app.js
-echo $(netstat -lntp | grep 3000)
+sleep 10
+
+echo $(netstat -lntp | grep 3000) # for ubuntu
+# echo $(netstat -vanp tcp | grep 3000) # for mac
 
 curl -d '{ "path": "../tmp/data/enwiki_test_articles.json" }' \
      -H "Content-Type: application/json" \
