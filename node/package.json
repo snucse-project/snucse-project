@@ -13,10 +13,8 @@
   },
   "author": "snucse-project",
   "dependencies": {
-    "cookie-parser": "^1.4.6",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
-    "express-session": "^1.17.3",
     "JSONStream": "^1.3.5",
     "morgan": "^1.10.0",
     "node-btree": "^0.8.0",
