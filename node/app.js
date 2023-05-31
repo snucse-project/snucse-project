@@ -1,11 +1,8 @@
 const express = require('express');
 const morgan = require('morgan');
-// const cookieParser = require('cookie-parser');
-// const session = require('express-session');
 const dotenv = require('dotenv');
 const path = require('path');
 const nunjucks = require('nunjucks');
-// const bplustree = require('./structures/bplustree');
 const { BTree } = require("node-btree"); // https://www.npmjs.com/package/i2bplustree
 const hash = require('./structures/hash');
 const cache = require('./structures/cache');
@@ -17,8 +14,7 @@ var filepath;
 
 dotenv.config();
 
- /* change degree later */
- function comparator(a, b) {
+function comparator(a, b) {
   if (a > b) {
     return 1;
   }
@@ -30,14 +26,14 @@ dotenv.config();
   }
 }
 
-const bptree = new BTree(comparator); // use 100 : 199^3 ~ 8M
-const titleCache = new cache.Cache(160000);        // @param memory limit
+const bptree = new BTree(comparator);
+/* select cache type */
+// const titleCache = new cache.CacheLRU(160000);  // @param memory limit
+const titleCache = new cache.CacheClock(160000);  // @param memory limit
 const indexRouter = require('./routes/index');
-// const articleRouter = require('./routes/article')(bptree);
-// const contributorRouter = require('./routes/contributor');
 
 const app = express();
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || 7777);
 
 /* view engine setup */
 app.set('view engine', 'html'); // put layout files in ./views
@@ -47,23 +43,14 @@ nunjucks.configure('views', {
 })
 
 app.use(morgan('dev'));
-// app.use(express.static(path.join(__dirname, 'public'))); // put style files in ./public
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
-// app.use(cookieParser());
-
 
 app.use('/', indexRouter);
-// app.use('/article', articleRouter);
-// app.use('/contributor', contributorRouter);
 
-/* not easy to use declared B+ tree in routers
-   refactor this part later */
 app.route('/article')
   .get(async (req, res, next) => {
     try {
-      //const visual = bptree.visualize();
-      //console.log(visual);
       res.send('search with article/:title');
     } catch (err) {
       console.error(err);
@@ -179,7 +166,6 @@ app.get('/contributor/:username', async (req, res, next) => {
     next(err);
   }
 });
-/* end of messy codes */
 
 app.use((req, res, next) => {
     const error =  new Error(`${req.method} ${req.url} router doesn't exist.`);
