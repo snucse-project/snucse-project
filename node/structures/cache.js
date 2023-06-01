@@ -66,6 +66,10 @@ class CacheLRU {
       return null;
     }
   }
+
+  has(key) {
+    return this.hashTable.has(key);
+  }
 }
 
 class ClockNode {
@@ -133,6 +137,10 @@ class CacheClock {
       // console.log("cache miss...");
       return null;
     }
+  }
+
+  has(key) {
+    return this.hashTable.has(key);
   }
 }
 
