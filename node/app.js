@@ -66,9 +66,6 @@ class Value{
   }
 }
 
-const { ZipfGenerator } = require('../test/zipf');
-const zipfGen = new ZipfGenerator(100);
-
 app.post('/init', function(req, res, next){
   try {
     filepath = req.body.path;
@@ -84,18 +81,8 @@ app.post('/init', function(req, res, next){
       for (item of parsed_data) {
         bptree.set(hash.hashStringTo8ByteInt(item.title), new Value(item.contributor, item.start, item.end));
       }
-      //res.send(""+bptree.size);
+      res.send(""+bptree.size);
     });
-
-    let returnstr = "";
-    const cntArr = Array.from({ length: 100 }, (_, index) => 0);
-    for(let i=0; i<100000; i++){
-      cntArr[zipfGen.nextInt()]++;
-    }
-    for(let i=0; i<100; i++){
-      returnstr += cntArr[i] + " ";
-    }
-    res.send(returnstr);
   } catch (err) {
     console.error(err);
     next(err);
