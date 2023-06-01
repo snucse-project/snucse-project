@@ -28,9 +28,13 @@ function comparator(a, b) {
 
 const bptree = new BTree(comparator);
 /* select cache type */
-// const titleCache = new cache.CacheLRU(160000);  // @param memory limit
-const titleCache = new cache.CacheClock(160000);  // @param memory limit
+// const titleCache = new cache.CacheLRU(1000000);  // @param memory limit
+const titleCache = new cache.CacheClock(1000000);  // @param memory limit
 const indexRouter = require('./routes/index');
+
+module.exports.bptreeInstance = bptree;
+module.exports.cacheInstance = titleCache;
+const prefetch = require('./prefetch');
 
 const app = express();
 app.set('port', process.env.PORT || 7777);
@@ -94,7 +98,7 @@ app.get('/article/:title', async (req, res, next) => {
     const title = req.params.title;
     const hashedTitle = hash.hashStringTo8ByteInt(title);
     const cachedArticle = titleCache.find(hashedTitle);
-    if (cachedArticle === null){
+    if (cachedArticle === null) { // Cache miss or Not in dump file
       if (!bptree.has(hashedTitle)) {
         res.status(404).send(`Article "${title}" doesn't exist.`);
       }
@@ -122,6 +126,7 @@ app.get('/article/:title', async (req, res, next) => {
           .on('end', () => {
             titleCache.insert(hashedTitle, readArticle, value.end - value.start);
             res.end();
+            prefetch.prefetch(readArticle, filepath);
           });
   
         // Without Using Byte Offset
@@ -137,8 +142,13 @@ app.get('/article/:title', async (req, res, next) => {
         */
       }
     }
-    else {
-      res.send(cachedArticle);
+    else { // Cache hit
+      res.set('Content-Type', 'text/html');
+      res.write(`title: ${title}<br/>`);
+      res.write(`Cache Hit!<br/><br/>`);
+      res.write(cachedArticle);
+      res.end();
+      prefetch.prefetch(cachedArticle, filepath);
     }
   } catch (err) {
     console.error(err);
