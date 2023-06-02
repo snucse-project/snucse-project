@@ -11,7 +11,7 @@ metadata:
   labels:
     app: wiki-search-engine
 spec:
-  replicas: 5
+  replicas: 3
   selector:
     matchLabels:
       app: wiki-search-engine
@@ -37,6 +37,10 @@ spec:
             - mountPath: /tmp/data
               name: wiki-search-engine-volume
               readOnly: true
+          lifecycle:
+            postStart:
+              exec:
+                command: ["/bin/sh", "-c", "./startup.sh"]
       volumes:
         - name: wiki-search-engine-volume
           persistentVolumeClaim:
