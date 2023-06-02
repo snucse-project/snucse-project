@@ -1,4 +1,4 @@
-class Node {
+class LRUNode {
   constructor(key, data, size){
     this.key = key;
     this.data = data;
@@ -8,7 +8,7 @@ class Node {
   }
 }
 
-class Cache {
+class CacheLRU {
   constructor(limit) {
     this.head = null;
     this.tail = null;
@@ -18,7 +18,7 @@ class Cache {
   }
 
   insert(key, data, size) {
-    const newNode = new Node(key, data, size);
+    const newNode = new LRUNode(key, data, size);
     
     if(!this.head) {
       this.head = newNode;
@@ -32,11 +32,11 @@ class Cache {
     }
     
     this.size = this.size + newNode.size;
-    console.log("Inserted data, cur size: " + this.size);
+    // console.log("Inserted data, cur size: " + this.size);
     this.hashTable.set(key, newNode);
     if (this.size > this.limit){
       this.removeByLRU();
-      console.log("Evicted by LRU, cur size: " + this.size);
+      // console.log("Evicted by LRU, cur size: " + this.size);
     }
   }
 
@@ -50,7 +50,7 @@ class Cache {
 
   find(key) {
     if(this.hashTable.has(key)){
-      console.log("cache hit!");
+      // console.log("cache hit!");
       const findNode = this.hashTable.get(key);
       if(findNode.prev !== null)
         findNode.prev.next = findNode.next;
@@ -62,10 +62,86 @@ class Cache {
       return findNode.data;
     }
     else {
-      console.log("cache miss...");
+      // console.log("cache miss...");
       return null;
     }
   }
+
+  has(key) {
+    return this.hashTable.has(key);
+  }
 }
 
-module.exports = {Cache};
+class ClockNode {
+  constructor(key, data, size){
+    this.key = key;
+    this.data = data;
+    this.next = null;
+    this.size = size;
+    this.refBit = true;
+  }
+}
+
+class CacheClock {
+  constructor(limit) {
+    this.cur = null;
+    this.size = 0;
+    this.limit = limit;
+    this.hashTable = new Map();
+  }
+
+  insert(key, data, size) {
+    const newNode = new ClockNode(key, data, size);
+    
+    if(!this.cur) {
+      this.cur = newNode;
+      newNode.next = newNode;
+    }
+    else {
+      newNode.next = this.cur.next;
+      this.cur.next = newNode;
+      this.cur = this.cur.next;
+    }
+    
+    this.size = this.size + newNode.size;
+    // console.log("Inserted data, cur size: " + this.size);
+    this.hashTable.set(key, newNode);
+    if (this.size > this.limit){
+      this.removeByClock();
+      // console.log("Evicted by Clock, cur size: " + this.size);
+    }
+  }
+
+  removeByClock(){
+    while(this.size > this.limit){
+      if(this.cur.next.refBit == false){
+        this.size -= this.cur.next.size;
+        this.hashTable.delete(this.cur.next.key);
+        this.cur.next = this.cur.next.next;
+      }
+      else {
+        this.cur.next.refBit = false;
+        this.cur = this.cur.next;
+      }
+    }
+  }
+
+  find(key) {
+    if(this.hashTable.has(key)){
+      // console.log("cache hit!");
+      const findNode = this.hashTable.get(key);
+      findNode.refBit = 1;
+      return findNode.data;
+    }
+    else {
+      // console.log("cache miss...");
+      return null;
+    }
+  }
+
+  has(key) {
+    return this.hashTable.has(key);
+  }
+}
+
+module.exports = {CacheLRU, CacheClock};
