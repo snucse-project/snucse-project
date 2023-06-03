@@ -1,6 +1,5 @@
 #!/bin/bash
 
-./node_modules/.bin/pm2 start app.js
 sleep 10
 
 echo $(netstat -lntp | grep 3000) # for ubuntu
@@ -11,5 +10,3 @@ curl -d '{ "path": "../tmp/data/enwiki_test_articles.json" }' \
      -X POST localhost:3000/init
 sleep 30
 curl -X GET localhost:3000/article/Anarchism # test query
-
-exit(0)

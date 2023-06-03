@@ -1,7 +1,6 @@
 import requests
 import time
 import argparse
-from zipf.factories import ZipfFromText
 import asyncio
 import aiohttp
 from aiohttp import ClientSession, ClientConnectorError
