@@ -28,8 +28,8 @@ function comparator(a, b) {
 
 const bptree = new BTree(comparator);
 /* select cache type */
-// const titleCache = new cache.CacheLRU(1000000);  // @param memory limit
-const titleCache = new cache.CacheClock(1000000);  // @param memory limit
+const titleCache = new cache.CacheLRU(1000000);  // @param memory limit
+// const titleCache = new cache.CacheClock(1000000);  // @param memory limit
 const indexRouter = require('./routes/index');
 
 module.exports.bptreeInstance = bptree;
@@ -126,7 +126,7 @@ app.get('/article/:title', async (req, res, next) => {
           .on('end', () => {
             titleCache.insert(hashedTitle, readArticle, value.end - value.start);
             res.end();
-            prefetch.prefetch(readArticle, filepath);
+            // prefetch.prefetch(readArticle, filepath);
           });
   
         // Without Using Byte Offset
@@ -148,7 +148,7 @@ app.get('/article/:title', async (req, res, next) => {
       res.write(`Cache Hit!<br/><br/>`);
       res.write(cachedArticle);
       res.end();
-      prefetch.prefetch(cachedArticle, filepath);
+      // prefetch.prefetch(cachedArticle, filepath);
     }
   } catch (err) {
     console.error(err);
