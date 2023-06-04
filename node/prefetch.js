@@ -26,7 +26,7 @@ function getLinkedArticles(content) {
 	return(result.slice(0, 5));
 }
 
-function prefetch(content, filepath) {
+function prefetch(content, dir, fileName, filePath) {
 	articleList = getLinkedArticles(content);
 
 	for (article of articleList) {
@@ -35,8 +35,9 @@ function prefetch(content, filepath) {
 			let value = bptree.get(hashedTitle);
 			if (!value) continue; // Not in dump file
 
+			let fileNum = value.fileNum;
 			let readArticle = '';
-        	const stream = fs.createReadStream(filepath, {
+        	const stream = fs.createReadStream(filePath(), {
           		encoding: 'utf8',
           		start: value.start,
           		end: value.end
