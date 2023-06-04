@@ -3,10 +3,7 @@ from threading import Thread
 import http.client as httplib
 import sys
 from queue import Queue
-import time
-
-thread_count = 1000 #32000 
-concurrent = 1000000
+import time, argparse
 
 def doWork():
     while True:
@@ -29,18 +26,49 @@ def getStatus(ourl):
 def doSomethingWithResult(status, url):
     print(status, url)
 
-q = Queue(concurrent * 2)
-start = time.time()
-for i in range(thread_count):
-    t = Thread(target=doWork)
-    t.daemon = True
-    t.start()
-try:
-    for url in open('test/url/url_49.txt'):
-        q.put(url.strip())
-    q.join()
-except KeyboardInterrupt:
-    sys.exit(1)
 
-end = time.time()
-print(f"{end - start:.5f} sec")
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-t', '--type', choices=["random", "zipf", "link"])
+    args = parser.parse_args()
+
+    thread_count = 1000 #32000 
+    concurrent = 1000000
+
+    q = Queue(concurrent * 2)
+    for i in range(thread_count):
+        t = Thread(target=doWork)
+        t.daemon = True
+        t.start()
+
+    try:
+        if args.type == "random":
+            import random
+            # while True:
+            urls = []
+            for url in open('test/url.txt'):
+                urls.append(url.strip())
+            
+            random_urls = []
+            for _ in range(len(urls)):
+                random_urls.append(random.choice(urls))
+            start = time.time()
+            for url in random_urls:
+                q.put(url)
+            q.join()
+            end = time.time()
+        elif args.type == "zipf":
+            import random
+            zipf_urls = []
+            for url in open('test/zipf_url.txt'):
+                zipf_urls.append(url.strip())
+            random.shuffle(zipf_urls)
+            start = time.time()
+            for url in zipf_urls:
+                q.put(url)
+            q.join()
+            end = time.time()
+    except KeyboardInterrupt:
+        sys.exit(1)
+
+    print(f"{end - start:.5f} sec")
