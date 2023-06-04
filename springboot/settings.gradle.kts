@@ -1,5 +1,4 @@
-
-rootProject.name = "wikipedia-search-engine"
+rootProject.name = "springboot"
 
 pluginManagement {
     repositories {
