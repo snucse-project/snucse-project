@@ -55,12 +55,12 @@ if __name__ == '__main__':
     if len(sys.argv) != 2:
         usage(sys.argv)
     xmlfile = sys.argv[1]
+    json_name = os.path.splitext(xmlfile[0]) + '.json'
     json_path = '/home/reverg/Downloads'
     if not os.path.isfile(xmlfile):
         usage(sys.argv, 'Not found or not a file: {}'.format(xmlfile))
-    with open(xmlfile, 'rb') as f:
-        # Set item_depth to turn on the streaming feature
-        # Do not prefix attribute keys with @
-        jsonString = json.dumps(xmltodict.parse(f, item_depth=0, attr_prefix='', item_callback=handle_xml), indent=3, ensure_ascii=False)
-    with open(os.path.join(json_path, f"{xmlfile}.json"), 'w',encoding='utf8') as f:
-      f.write(jsonString)
+    with open(xmlfile, 'rb') as xmlf:
+        with open(os.path.join(json_path, json_name), 'w',encoding='utf8') as jsonf:
+          # Set item_depth to turn on the streaming feature
+          # Do not prefix attribute keys with @
+          json.dump(xmltodict.parse(xmlf, item_depth=0, attr_prefix='', item_callback=handle_xml), jsonf, indent=3, ensure_ascii=False)
