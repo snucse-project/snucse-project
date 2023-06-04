@@ -1,3 +1,4 @@
 # for nodejs server
 node_modules/
 ref/
+.DS_Store
