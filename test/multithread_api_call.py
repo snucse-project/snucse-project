@@ -3,7 +3,7 @@ from threading import Thread
 import http.client as httplib
 import sys
 from queue import Queue
-import time, argparse
+import time, argparse, pathlib, os
 
 def doWork():
     while True:
@@ -28,6 +28,7 @@ def doSomethingWithResult(status, url):
 
 
 if __name__ == "__main__":
+    here = pathlib.Path(__file__).parent
     parser = argparse.ArgumentParser()
     parser.add_argument('-t', '--type', choices=["random", "zipf", "link"])
     args = parser.parse_args()
@@ -46,7 +47,7 @@ if __name__ == "__main__":
             import random
             # while True:
             urls = []
-            for url in open('test/url.txt'):
+            for url in open(os.path.join(here, 'url.txt')):
                 urls.append(url.strip())
             
             random_urls = []
@@ -60,11 +61,20 @@ if __name__ == "__main__":
         elif args.type == "zipf":
             import random
             zipf_urls = []
-            for url in open('test/zipf_url.txt'):
+            for url in open(os.path.join(here, 'zipf_url.txt')):
                 zipf_urls.append(url.strip())
             random.shuffle(zipf_urls)
             start = time.time()
             for url in zipf_urls:
+                q.put(url)
+            q.join()
+            end = time.time()
+        elif args.type == "link":
+            link_urls = []
+            for url in open(os.path.join(here, 'link_url.txt')):
+                link_urls.append(url.strip())
+            start = time.time()
+            for url in link_urls:
                 q.put(url)
             q.join()
             end = time.time()
