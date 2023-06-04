@@ -27,6 +27,14 @@ def doSomethingWithResult(status, url):
     print(status, url)
 
 
+def parse_url(url):
+    url = url.strip()
+    title_slash = url[33:].rfind('/')
+    if title_slash != -1:
+        url = url[:title_slash+33] + '%2F' + url[title_slash+34:]
+    return url
+
+
 if __name__ == "__main__":
     here = pathlib.Path(__file__).parent
     parser = argparse.ArgumentParser()
@@ -48,7 +56,7 @@ if __name__ == "__main__":
             # while True:
             urls = []
             for url in open(os.path.join(here, 'url.txt')):
-                urls.append(url.strip())
+                urls.append(parse_url(url))
             
             random_urls = []
             for _ in range(len(urls)):
@@ -62,7 +70,7 @@ if __name__ == "__main__":
             import random
             zipf_urls = []
             for url in open(os.path.join(here, 'zipf_url.txt')):
-                zipf_urls.append(url.strip())
+                zipf_urls.append(parse_url(url))
             random.shuffle(zipf_urls)
             start = time.time()
             for url in zipf_urls:
@@ -72,7 +80,7 @@ if __name__ == "__main__":
         elif args.type == "link":
             link_urls = []
             for url in open(os.path.join(here, 'link_url.txt')):
-                link_urls.append(url.strip())
+                link_urls.append(parse_url(url))
             start = time.time()
             for url in link_urls:
                 q.put(url)
