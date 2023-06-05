@@ -26,7 +26,7 @@ if __name__ == '__main__':
     xmlfile = sys.argv[1]
     file_name = os.path.basename(xmlfile)
     file_name = os.path.splitext(file_name)[0] # file name w/o extension
-    output_dir = '/home/reverg/Downloads/'
+    output_dir = 'data/'
     articles = []
     site_id = uuid.uuid1().hex
 
@@ -55,7 +55,7 @@ if __name__ == '__main__':
             articles.append(page)
 
         del data["mediawiki"]["page"]
-    with open(output_dir + file_name +'_siteinfo.json', mode='w', encoding='utf8') as output_file:
-        json.dump(data, output_file, indent=4)
+    # with open(output_dir + file_name +'_siteinfo.json', mode='w', encoding='utf8') as output_file:
+    #     json.dump(data, output_file, indent=4)
     with open(output_dir + file_name + '_articles.json', mode='w', encoding='utf8') as output_file:
         json.dump(articles, output_file, indent=4)
