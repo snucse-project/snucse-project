@@ -155,7 +155,7 @@ app.get('/article/:title', async (req, res, next) => {
           .on('end', () => {
             titleCache.insert(hashedTitle, readArticle, value.end - value.start);
             res.end();
-            prefetch.prefetch(readArticle, dir, fileName, filePath);
+            // prefetch.prefetch(readArticle, dir, fileName, filePath);
           });
   
         // Without Using Byte Offset
@@ -177,7 +177,7 @@ app.get('/article/:title', async (req, res, next) => {
       res.write(`Cache Hit!<br/><br/>`);
       res.write(cachedArticle);
       res.end();
-      prefetch.prefetch(cachedArticle, dir, fileName, filePath);
+      // prefetch.prefetch(cachedArticle, dir, fileName, filePath);
     }
   } catch (err) {
     console.error(err);
