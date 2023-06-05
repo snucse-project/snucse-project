@@ -4,7 +4,6 @@ import json
 import sys
 
 file_path = sys.argv[1]
-page_num = sys.argv[2]
 parsed_data = []
 
 with open(file_path, mode='r', encoding='utf8') as input_file:
@@ -28,5 +27,5 @@ with open(file_path, mode='r', encoding='utf8') as input_file:
 		line = input_file.readline()
 
 print(json.dumps(parsed_data, indent=4))
-with open(f'data/parsed_{page_num}.json', mode='w', encoding='utf8') as output_file:
-   json.dump(parsed_data, output_file, indent=4)
+# with open(f'parsed.json', mode='w', encoding='utf8') as output_file:
+#    json.dump(parsed_data, output_file, indent=4)
