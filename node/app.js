@@ -10,7 +10,14 @@ const spawn = require('child_process').spawn;
 const fs = require('fs');
 const JSONStream = require('JSONStream');
 
-var filepath;
+var dir;
+var fileName;
+var fileNum = 0;
+var filePath = () => path.format({
+  dir: dir,
+  name: `${fileName}_${fileNum}`,
+  ext: '.json'
+});
 
 dotenv.config();
 
@@ -63,8 +70,9 @@ app.route('/article')
   });
 
 class Value{
-  constructor(username, start, end){
+  constructor(username, fileNum, start, end){
     this.username = username;
+    this.fileNum = fileNum;
     this.start = start;
     this.end = end;
   }
@@ -72,21 +80,40 @@ class Value{
 
 app.post('/init', function(req, res, next){
   try {
-    filepath = req.body.path;
-    const childPython = spawn('python3', ['parse.py', filepath]);
+    dir = req.body.path;
+    fileList = fs.readdirSync(dir);
+    for (file of fileList) {
+      baseName = path.parse(file);
+      if (baseName.ext == '.json' && (fileName = baseName.name.match(/.+(?=_\d+)/))) break;
+    }
 
-    var result = "";
-    childPython.stdout.on('data', (data) => {
-      result += data.toString();
-    });
+    if (!fileName) return res.status(404).send("Dump file not found.");
+
+    function readFile () {
+      if (fileList.length === 0) return res.send(`POST done: ${bptree.size} Articles`);
+      var file = fileList.shift();
+
+      baseName = path.parse(file);
+      if (baseName.ext == '.json' && (match = baseName.name.match(new RegExp(`\\b${fileName}_(?<fileNum>\\d+)`)))) {
+        fileNum = match.groups.fileNum;
+
+        const childPython = spawn('python3', ['parse.py', filePath()]);
+
+        var result = "";
+        childPython.stdout.on('data', (data) => {
+          result += data.toString();
+        });
     
-    childPython.stdout.on('end', () => {
-      const parsed_data = JSON.parse(result);
-      for (item of parsed_data) {
-        bptree.set(hash.hashStringTo8ByteInt(item.title), new Value(item.contributor, item.start, item.end));
-      }
-      res.send(""+bptree.size);
-    });
+        childPython.stdout.on('end', () => {
+          const parsed_data = JSON.parse(result);
+          for (item of parsed_data) {
+            bptree.set(hash.hashStringTo8ByteInt(item.title), new Value(item.contributor, fileNum, item.start, item.end));
+          }
+          readFile();
+        });
+      } else readFile();
+    }
+    readFile();
   } catch (err) {
     console.error(err);
     next(err);
@@ -104,6 +131,8 @@ app.get('/article/:title', async (req, res, next) => {
       }
       else {
         const value = bptree.get(hashedTitle);
+        fileNum = value.fileNum;
+
         res.set('Content-Type', 'text/html');
         res.write(`title: ${title}<br/>`);
         res.write(`contributor: ${value.username}<br/>`);
@@ -113,7 +142,7 @@ app.get('/article/:title', async (req, res, next) => {
         // To compare performance, comment out following lines
         // and uncomment 'Without Using Byte Offset' part below.
         let readArticle = '';
-        const stream = fs.createReadStream(filepath, {
+        const stream = fs.createReadStream(filePath(), {
           encoding: 'utf8',
           start: value.start,
           end: value.end
@@ -126,12 +155,12 @@ app.get('/article/:title', async (req, res, next) => {
           .on('end', () => {
             titleCache.insert(hashedTitle, readArticle, value.end - value.start);
             res.end();
-            // prefetch.prefetch(readArticle, filepath);
+            // prefetch.prefetch(readArticle, dir, fileName, filePath);
           });
   
         // Without Using Byte Offset
         /*
-        const stream = fs.createReadStream(filepath, {encoding: 'utf8'});
+        const stream = fs.createReadStream(filePath(), {encoding: 'utf8'});
         stream.pipe(JSONStream.parse('*'))
           .on('data', (page) => {
             if (page.title===title) {
@@ -148,7 +177,7 @@ app.get('/article/:title', async (req, res, next) => {
       res.write(`Cache Hit!<br/><br/>`);
       res.write(cachedArticle);
       res.end();
-      // prefetch.prefetch(cachedArticle, filepath);
+      // prefetch.prefetch(cachedArticle, dir, fileName, filePath);
     }
   } catch (err) {
     console.error(err);
