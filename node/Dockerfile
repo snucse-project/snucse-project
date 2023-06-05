@@ -8,7 +8,7 @@ COPY . .
 RUN apk update && \
 apk --no-cache --virtual add \
 g++ cmake build-base glib-dev \
-bash curl vim
+bash curl vim python3 py3-pip
 
 RUN npm install
 
