@@ -37,10 +37,10 @@ spec:
             - mountPath: /tmp/data
               name: wiki-search-engine-volume
               readOnly: true
-          lifecycle:
-            postStart:
-              exec:
-                command: ["/bin/sh", "-c", "./startup.sh"]
+          # lifecycle:
+          #   postStart:
+          #     exec:
+          #       command: ["/bin/sh", "-c", "./startup.sh"]
           resources:
             requests:
               memory: "2.5Gi"
