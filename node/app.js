@@ -105,10 +105,13 @@ app.post('/init', function(req, res, next){
         });
     
         childPython.stdout.on('end', () => {
-          const parsed_data = JSON.parse(result);
+          let parsed_data = JSON.parse(result);
           for (item of parsed_data) {
             bptree.set(hash.hashStringTo8ByteInt(item.title), new Value(item.contributor, fileNum, item.start, item.end));
           }
+          
+          result = null;
+          parsed_data = null;
           readFile();
         });
       } else readFile();
