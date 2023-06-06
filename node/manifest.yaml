@@ -41,7 +41,7 @@ spec:
             postStart:
               exec:
                 command: ["/bin/sh", "-c", "./startup.sh"]
-        - resources:
+          resources:
             requests:
               memory: "2.5Gi"
               cpu: "750m"
