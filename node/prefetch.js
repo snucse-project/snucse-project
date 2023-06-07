@@ -7,6 +7,7 @@ const cache = app.cacheInstance;
 
 function getLinkedArticles(content) {
 	linked = content.match(/(?<=\[\[).+?(?=\]\]|\|.*\]\]|#.*\]\])/g);
+	if (!linked) return [];
 
 	countMap = new Map();
 	for (article of linked) {
