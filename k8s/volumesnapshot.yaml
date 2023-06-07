@@ -1,0 +1,8 @@
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshot
+metadata:
+  name: wiki-search-engine-snapshot
+spec:
+  volumeSnapshotClassName: wiki-search-engine-snapshot-class
+  source:
+    persistentVolumeClaimName: pvc-demo
