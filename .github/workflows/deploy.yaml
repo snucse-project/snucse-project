@@ -2,7 +2,8 @@ name: CI/CD
 
 on:
   push:
-    branches: [ test-cacheClock ]
+    branches: 
+      - test-cacheClock
 
 defaults:
   run:
