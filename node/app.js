@@ -6,16 +6,15 @@ const nunjucks = require('nunjucks');
 const { BTree } = require("node-btree"); // https://www.npmjs.com/package/i2bplustree
 const hash = require('./structures/hash');
 const cache = require('./structures/cache');
-const spawn = require('child_process').spawn;
 const fs = require('fs');
 const JSONStream = require('JSONStream');
 
 var dir;
 var fileName;
 var fileNum = 0;
-var filePath = () => path.format({
+var filePath = (parsed = false) => path.format({
   dir: dir,
-  name: `${fileName}_${fileNum}`,
+  name: parsed ? `${fileName}_${fileNum}_parsed` : `${fileName}_${fileNum}`,
   ext: '.json'
 });
 
@@ -94,26 +93,19 @@ app.post('/init', function(req, res, next){
       var file = fileList.shift();
 
       baseName = path.parse(file);
-      if (baseName.ext == '.json' && (match = baseName.name.match(new RegExp(`\\b${fileName}_(?<fileNum>\\d+)`)))) {
+      if (baseName.ext == '.json' && (match = baseName.name.match(new RegExp(`\\b${fileName}_(?<fileNum>\\d+)_parsed`)))) {
         fileNum = match.groups.fileNum;
 
-        const childPython = spawn('python3', ['parse.py', filePath()]);
-
-        var result = "";
-        childPython.stdout.on('data', (data) => {
-          result += data.toString();
-        });
-    
-        childPython.stdout.on('end', () => {
-          let parsed_data = JSON.parse(result);
-          for (item of parsed_data) {
-            bptree.set(hash.hashStringTo8ByteInt(item.title), new Value(item.contributor, fileNum, item.start, item.end));
-          }
-          
-          result = null;
-          parsed_data = null;
-          readFile();
-        });
+        const stream = fs.createReadStream(filePath(parsed = true), {encoding: 'utf8'});
+        stream.pipe(JSONStream.parse('*'))
+          .on('data', (page) => {
+            let title = JSON.stringify(page.title).replace(/^"(.*)"$/, '$1'); // Remove quotes from string
+            let username = JSON.stringify(page.contributor).replace(/^"(.*)"$/, '$1');
+            bptree.set(hash.hashStringTo8ByteInt(title), new Value(username, fileNum, page.start, page.end));
+          })
+          .on('end', () => {
+            readFile();
+          });
       } else readFile();
     }
     readFile();
