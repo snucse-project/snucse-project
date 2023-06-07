@@ -13,6 +13,8 @@ bash curl vim python3 py3-pip
 RUN npm install
 
 RUN chown -R node:node ./node_modules
+RUN mkdir out
+RUN chown -R node:node ./out
 RUN chmod +x ./startup.sh
 
 USER node
