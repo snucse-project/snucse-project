@@ -4,6 +4,7 @@ import http.client as httplib
 import sys
 from queue import Queue
 import time, argparse, pathlib, os
+import numpy as np
 
 def doWork():
     while True:
@@ -24,7 +25,8 @@ def getStatus(ourl):
         return "error", ourl
 
 def doSomethingWithResult(status, url):
-    print(status, url)
+    pass
+    # print(status, url)
 
 
 def parse_url(url):
@@ -55,36 +57,54 @@ if __name__ == "__main__":
             import random
             # while True:
             urls = []
-            for url in open(os.path.join(here, 'url.txt')):
-                urls.append(parse_url(url))
-            
+            for i in range(1, 11):
+                for url in open(os.path.join(here, f'urls/url_{i}.txt')):
+                    urls.append(parse_url(url))
+        
             random_urls = []
             for _ in range(len(urls)):
                 random_urls.append(random.choice(urls))
             start = time.time()
-            for url in random_urls:
+            # print(f"total urls: {len(random_urls)}")
+            for url in random_urls[:len(random_urls)//100]:
                 q.put(url)
             q.join()
             end = time.time()
+            print(f"total urls: {len(random_urls[:len(random_urls)//100])}")
         elif args.type == "zipf":
             import random
-            zipf_urls = []
-            for url in open(os.path.join(here, 'zipf_url.txt')):
-                zipf_urls.append(parse_url(url))
-            random.shuffle(zipf_urls)
+            total_zipf_urls = []
+            for i in range(1, 11):
+                zipf_urls = []
+                for url in open(os.path.join(here, f'zipf_urls/url_{i}.txt')):
+                    zipf_urls.append(parse_url(url))
+                random.shuffle(zipf_urls)
+                total_zipf_urls.extend(zipf_urls[:len(zipf_urls)//100])
             start = time.time()
-            for url in zipf_urls:
+            print(f"total urls: {len(total_zipf_urls)}")
+            for url in total_zipf_urls:
                 q.put(url)
             q.join()
             end = time.time()
         elif args.type == "link":
-            link_urls = []
-            for url in open(os.path.join(here, 'link_url.txt')):
-                link_urls.append(parse_url(url))
+            total_link_urls = []
+            for i in range(1, 11):
+                link_urls = []
+                for url in open(os.path.join(here, f'link_urls/url_{i}.txt')):
+                    link_urls.append(parse_url(url))
+                total_link_urls.append(link_urls[:5000])
             start = time.time()
-            for url in link_urls:
-                q.put(url)
-            q.join()
+            # total_link_urls = np.array(total_link_urls)
+            # print(total_link_urls)
+            print(f"total urls: {len(np.array(total_link_urls).flatten())}")
+            while len(np.array(total_link_urls).flatten()) != 0:
+                # print(len(np.array(total_link_urls).flatten()))
+                for i in range(10):
+                    if len(total_link_urls[i]) == 0:
+                        continue
+                    url = total_link_urls[i][0]
+                    total_link_urls[i] = np.delete(total_link_urls[i], [0], axis=0)
+                    q.put(url)
             end = time.time()
     except KeyboardInterrupt:
         sys.exit(1)
