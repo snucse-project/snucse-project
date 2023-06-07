@@ -5,7 +5,7 @@ import os
 import sys
 
 file_path = sys.argv[1]
-output_dir = os.path.dirname(file_path)+'/'
+output_dir = './'
 file_name = os.path.basename(file_path)
 file_name = os.path.splitext(file_name)[0] # file name w/o extension
 
