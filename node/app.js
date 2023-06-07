@@ -119,7 +119,7 @@ app.get('/article/:title', async (req, res, next) => {
   try{
     const title = req.params.title;
     const hashedTitle = hash.hashStringTo8ByteInt(title);
-    const cachedArticle = titleCache.find(hashedTitle);
+    const cachedArticle = null;
     if (cachedArticle === null) { // Cache miss or Not in dump file
       if (!bptree.has(hashedTitle)) {
         res.status(404).send(`Article "${title}" doesn't exist.`);
@@ -148,9 +148,9 @@ app.get('/article/:title', async (req, res, next) => {
             readArticle += data;
           })
           .on('end', () => {
-            titleCache.insert(hashedTitle, readArticle, value.end - value.start);
+            // titleCache.insert(hashedTitle, readArticle, value.end - value.start);
             res.end();
-            prefetch.prefetch(readArticle, dir, fileName, filePath);
+            // prefetch.prefetch(readArticle, dir, fileName, filePath);
           });
   
         // Without Using Byte Offset
