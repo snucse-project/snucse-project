@@ -2,7 +2,7 @@ name: CI/CD
 
 on:
   push:
-    branches: [ deploy, main ]
+    branches: [ deploy, main, test-none ]
 
 defaults:
   run:
