@@ -44,7 +44,12 @@ class CacheLRU {
     while(this.size > this.limit){
       this.size = this.size - this.head.size;
       this.hashTable.delete(this.head.key);
-      this.head = this.head.next;
+      tmp = this.head;
+      this.head = tmp.next;
+      tmp.data = null;
+      tmp.prev = null;
+      tmp.next = null;
+      tmp.key = null
     }
   }
 
