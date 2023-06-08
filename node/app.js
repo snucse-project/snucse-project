@@ -34,7 +34,7 @@ function comparator(a, b) {
 
 const bptree = new BTree(comparator);
 /* select cache type */
-const titleCache = new cache.CacheLRU(2500000);  // @param memory limit
+const titleCache = new cache.CacheLRU(5000000);  // @param memory limit
 // const titleCache = new cache.CacheClock(1000000);  // @param memory limit
 const indexRouter = require('./routes/index');
 
