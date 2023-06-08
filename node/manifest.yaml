@@ -7,7 +7,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: wiki-search-engine
-  namespace: default
+  namespace: snucse-project
   labels:
     app: wiki-search-engine
 spec:
@@ -41,13 +41,6 @@ spec:
             postStart:
               exec:
                 command: ["/bin/sh", "-c", "./startup.sh"]
-          # resources:
-          #   requests:
-          #     memory: "2.5Gi"
-          #     cpu: "750m"
-          #   limits:
-          #     memory: "2.5Gi"
-          #     cpu: "750m"
       volumes:
         - name: wiki-search-engine-volume
           persistentVolumeClaim:
@@ -59,7 +52,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: wiki-search-engine
-  namespace: default
+  namespace: snucse-project
 spec:
   type: LoadBalancer
   selector:

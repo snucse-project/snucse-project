@@ -1,7 +1,7 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  namespace: default
+  namespace: snucse-project
   name: wiki-search-engine-pvc
 spec:
   dataSource:
